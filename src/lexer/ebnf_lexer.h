@@ -1,11 +1,11 @@
-#ifndef EBNFPARSER_GUARD_FLEXLEXER_H
-#define EBNFPARSER_GUARD_FLEXLEXER_H
-// ebnfparser_guard_flexlexer.h
+#ifndef EBNF_LEXER_H
+#define EBNF_LEXER_H
+// lexer.h
 
 /*
 MIT License
 
-Copyright (c) 2024 Zartaj Majeed
+Copyright (c) 2024-2026 Zartaj Majeed
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// make sure redefinition happens just once using FlexLexer.h macro that guards yyFlexLexer class definition
-#ifndef yyFlexLexerOnce
-#  undef yyFlexLexer
-#  define yyFlexLexer EbnfParserFlexLexer
-#  include "FlexLexer.h"
-#endif
+#include "ebnf_parser.bison.h"
+
+#include "ebnf_lexer_guard.h"
+
+namespace ebnfparser {
+using namespace std;
+
+class Lexer: public yyFlexLexer {
+public:
+
+// can only declare here since flex generates the implementation
+// dummy parameter because virtual int yyFlexLexer::yylex() cannot be overridden due to conflicting return type
+// would not be a problem if yylex was being generated with some parameters
+  EbnfParser::symbol_type yylex(location&);
+
+  Lexer() = default;
+
+  explicit Lexer(istream* yyin_arg): yyFlexLexer(yyin_arg) {}
+
+private:
+
+// fix gcc-13 warning -Woverloaded-virtual that virtual int EbnfParserFlexLexer::yylex() was hidden
+  using yyFlexLexer::yylex;
+  
+};
+
+}
 
 #endif
 

@@ -1,0 +1,543 @@
+Grammar
+
+    0 $accept: ebnf $end
+
+    1 ebnf: header rule postprocess
+    2     | header rule rules postprocess
+
+    3 rules: RULE_SEPARATOR rule
+    4      | rules RULE_SEPARATOR rule
+
+    5 rule: NONTERMINAL "::=" production_combo
+
+    6 production_combo: concatenation
+    7                 | alternative
+    8                 | COMMENT
+
+    9 concatenation: production
+   10              | concatenation production
+
+   11 alternative: production_combo "|" concatenation
+
+   12 production: element
+   13           | optional
+   14           | repetition
+   15           | group
+
+   16 element: NONTERMINAL
+   17        | TOKEN
+   18        | LITERAL
+   19        | NONTERMINAL COMMENT
+   20        | TOKEN COMMENT
+
+   21 optional: "[" production_combo "]"
+
+   22 repetition: element "..."
+   23           | group "..."
+   24           | optional "..."
+
+   25 group: "{" production_combo "}"
+
+   26 header: ε
+   27       | header_lines
+
+   28 header_lines: HEADER_LINE
+   29             | header_lines HEADER_LINE
+
+   30 postprocess: ε
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    "::=" (258) 5
+    "[" (259) 21
+    "]" (260) 21
+    "{" (261) 25
+    "}" (262) 25
+    "..." (263) 22 23 24
+    "|" (264) 11
+    RULE_SEPARATOR (265) 3 4
+    NONTERMINAL <string> (266) 5 16 19
+    TOKEN <string> (267) 17 20
+    LITERAL <string> (268) 18
+    COMMENT <string> (269) 8 19 20
+    HEADER_LINE <string> (270) 28 29
+
+
+Nonterminals, with rules where they appear
+
+    $accept (16)
+        on left: 0
+    ebnf (17)
+        on left: 1 2
+        on right: 0
+    rules (18)
+        on left: 3 4
+        on right: 2 4
+    rule (19)
+        on left: 5
+        on right: 1 2 3 4
+    production_combo (20)
+        on left: 6 7 8
+        on right: 5 11 21 25
+    concatenation (21)
+        on left: 9 10
+        on right: 6 10 11
+    alternative (22)
+        on left: 11
+        on right: 7
+    production (23)
+        on left: 12 13 14 15
+        on right: 9 10
+    element (24)
+        on left: 16 17 18 19 20
+        on right: 12 22
+    optional (25)
+        on left: 21
+        on right: 13 24
+    repetition (26)
+        on left: 22 23 24
+        on right: 14
+    group (27)
+        on left: 25
+        on right: 15 23
+    header (28)
+        on left: 26 27
+        on right: 1 2
+    header_lines (29)
+        on left: 28 29
+        on right: 27 29
+    postprocess (30)
+        on left: 30
+        on right: 1 2
+
+
+State 0
+
+    0 $accept: • ebnf $end
+
+    HEADER_LINE  shift, and go to state 1
+
+    $default  reduce using rule 26 (header)
+
+    ebnf          go to state 2
+    header        go to state 3
+    header_lines  go to state 4
+
+
+State 1
+
+   28 header_lines: HEADER_LINE •
+
+    $default  reduce using rule 28 (header_lines)
+
+
+State 2
+
+    0 $accept: ebnf • $end
+
+    $end  shift, and go to state 5
+
+
+State 3
+
+    1 ebnf: header • rule postprocess
+    2     | header • rule rules postprocess
+
+    NONTERMINAL  shift, and go to state 6
+
+    rule  go to state 7
+
+
+State 4
+
+   27 header: header_lines •  [NONTERMINAL]
+   29 header_lines: header_lines • HEADER_LINE
+
+    HEADER_LINE  shift, and go to state 8
+
+    $default  reduce using rule 27 (header)
+
+
+State 5
+
+    0 $accept: ebnf $end •
+
+    $default  accept
+
+
+State 6
+
+    5 rule: NONTERMINAL • "::=" production_combo
+
+    "::="  shift, and go to state 9
+
+
+State 7
+
+    1 ebnf: header rule • postprocess
+    2     | header rule • rules postprocess
+
+    RULE_SEPARATOR  shift, and go to state 10
+
+    $default  reduce using rule 30 (postprocess)
+
+    rules        go to state 11
+    postprocess  go to state 12
+
+
+State 8
+
+   29 header_lines: header_lines HEADER_LINE •
+
+    $default  reduce using rule 29 (header_lines)
+
+
+State 9
+
+    5 rule: NONTERMINAL "::=" • production_combo
+
+    "["          shift, and go to state 13
+    "{"          shift, and go to state 14
+    NONTERMINAL  shift, and go to state 15
+    TOKEN        shift, and go to state 16
+    LITERAL      shift, and go to state 17
+    COMMENT      shift, and go to state 18
+
+    production_combo  go to state 19
+    concatenation     go to state 20
+    alternative       go to state 21
+    production        go to state 22
+    element           go to state 23
+    optional          go to state 24
+    repetition        go to state 25
+    group             go to state 26
+
+
+State 10
+
+    3 rules: RULE_SEPARATOR • rule
+
+    NONTERMINAL  shift, and go to state 6
+
+    rule  go to state 27
+
+
+State 11
+
+    2 ebnf: header rule rules • postprocess
+    4 rules: rules • RULE_SEPARATOR rule
+
+    RULE_SEPARATOR  shift, and go to state 28
+
+    $default  reduce using rule 30 (postprocess)
+
+    postprocess  go to state 29
+
+
+State 12
+
+    1 ebnf: header rule postprocess •
+
+    $default  reduce using rule 1 (ebnf)
+
+
+State 13
+
+   21 optional: "[" • production_combo "]"
+
+    "["          shift, and go to state 13
+    "{"          shift, and go to state 14
+    NONTERMINAL  shift, and go to state 15
+    TOKEN        shift, and go to state 16
+    LITERAL      shift, and go to state 17
+    COMMENT      shift, and go to state 18
+
+    production_combo  go to state 30
+    concatenation     go to state 20
+    alternative       go to state 21
+    production        go to state 22
+    element           go to state 23
+    optional          go to state 24
+    repetition        go to state 25
+    group             go to state 26
+
+
+State 14
+
+   25 group: "{" • production_combo "}"
+
+    "["          shift, and go to state 13
+    "{"          shift, and go to state 14
+    NONTERMINAL  shift, and go to state 15
+    TOKEN        shift, and go to state 16
+    LITERAL      shift, and go to state 17
+    COMMENT      shift, and go to state 18
+
+    production_combo  go to state 31
+    concatenation     go to state 20
+    alternative       go to state 21
+    production        go to state 22
+    element           go to state 23
+    optional          go to state 24
+    repetition        go to state 25
+    group             go to state 26
+
+
+State 15
+
+   16 element: NONTERMINAL •  [$end, "[", "]", "{", "}", "...", "|", RULE_SEPARATOR, NONTERMINAL, TOKEN, LITERAL]
+   19        | NONTERMINAL • COMMENT
+
+    COMMENT  shift, and go to state 32
+
+    $default  reduce using rule 16 (element)
+
+
+State 16
+
+   17 element: TOKEN •  [$end, "[", "]", "{", "}", "...", "|", RULE_SEPARATOR, NONTERMINAL, TOKEN, LITERAL]
+   20        | TOKEN • COMMENT
+
+    COMMENT  shift, and go to state 33
+
+    $default  reduce using rule 17 (element)
+
+
+State 17
+
+   18 element: LITERAL •
+
+    $default  reduce using rule 18 (element)
+
+
+State 18
+
+    8 production_combo: COMMENT •
+
+    $default  reduce using rule 8 (production_combo)
+
+
+State 19
+
+    5 rule: NONTERMINAL "::=" production_combo •  [$end, RULE_SEPARATOR]
+   11 alternative: production_combo • "|" concatenation
+
+    "|"  shift, and go to state 34
+
+    $default  reduce using rule 5 (rule)
+
+
+State 20
+
+    6 production_combo: concatenation •  [$end, "]", "}", "|", RULE_SEPARATOR]
+   10 concatenation: concatenation • production
+
+    "["          shift, and go to state 13
+    "{"          shift, and go to state 14
+    NONTERMINAL  shift, and go to state 15
+    TOKEN        shift, and go to state 16
+    LITERAL      shift, and go to state 17
+
+    $default  reduce using rule 6 (production_combo)
+
+    production  go to state 35
+    element     go to state 23
+    optional    go to state 24
+    repetition  go to state 25
+    group       go to state 26
+
+
+State 21
+
+    7 production_combo: alternative •
+
+    $default  reduce using rule 7 (production_combo)
+
+
+State 22
+
+    9 concatenation: production •
+
+    $default  reduce using rule 9 (concatenation)
+
+
+State 23
+
+   12 production: element •  [$end, "[", "]", "{", "}", "|", RULE_SEPARATOR, NONTERMINAL, TOKEN, LITERAL]
+   22 repetition: element • "..."
+
+    "..."  shift, and go to state 36
+
+    $default  reduce using rule 12 (production)
+
+
+State 24
+
+   13 production: optional •  [$end, "[", "]", "{", "}", "|", RULE_SEPARATOR, NONTERMINAL, TOKEN, LITERAL]
+   24 repetition: optional • "..."
+
+    "..."  shift, and go to state 37
+
+    $default  reduce using rule 13 (production)
+
+
+State 25
+
+   14 production: repetition •
+
+    $default  reduce using rule 14 (production)
+
+
+State 26
+
+   15 production: group •  [$end, "[", "]", "{", "}", "|", RULE_SEPARATOR, NONTERMINAL, TOKEN, LITERAL]
+   23 repetition: group • "..."
+
+    "..."  shift, and go to state 38
+
+    $default  reduce using rule 15 (production)
+
+
+State 27
+
+    3 rules: RULE_SEPARATOR rule •
+
+    $default  reduce using rule 3 (rules)
+
+
+State 28
+
+    4 rules: rules RULE_SEPARATOR • rule
+
+    NONTERMINAL  shift, and go to state 6
+
+    rule  go to state 39
+
+
+State 29
+
+    2 ebnf: header rule rules postprocess •
+
+    $default  reduce using rule 2 (ebnf)
+
+
+State 30
+
+   11 alternative: production_combo • "|" concatenation
+   21 optional: "[" production_combo • "]"
+
+    "]"  shift, and go to state 40
+    "|"  shift, and go to state 34
+
+
+State 31
+
+   11 alternative: production_combo • "|" concatenation
+   25 group: "{" production_combo • "}"
+
+    "}"  shift, and go to state 41
+    "|"  shift, and go to state 34
+
+
+State 32
+
+   19 element: NONTERMINAL COMMENT •
+
+    $default  reduce using rule 19 (element)
+
+
+State 33
+
+   20 element: TOKEN COMMENT •
+
+    $default  reduce using rule 20 (element)
+
+
+State 34
+
+   11 alternative: production_combo "|" • concatenation
+
+    "["          shift, and go to state 13
+    "{"          shift, and go to state 14
+    NONTERMINAL  shift, and go to state 15
+    TOKEN        shift, and go to state 16
+    LITERAL      shift, and go to state 17
+
+    concatenation  go to state 42
+    production     go to state 22
+    element        go to state 23
+    optional       go to state 24
+    repetition     go to state 25
+    group          go to state 26
+
+
+State 35
+
+   10 concatenation: concatenation production •
+
+    $default  reduce using rule 10 (concatenation)
+
+
+State 36
+
+   22 repetition: element "..." •
+
+    $default  reduce using rule 22 (repetition)
+
+
+State 37
+
+   24 repetition: optional "..." •
+
+    $default  reduce using rule 24 (repetition)
+
+
+State 38
+
+   23 repetition: group "..." •
+
+    $default  reduce using rule 23 (repetition)
+
+
+State 39
+
+    4 rules: rules RULE_SEPARATOR rule •
+
+    $default  reduce using rule 4 (rules)
+
+
+State 40
+
+   21 optional: "[" production_combo "]" •
+
+    $default  reduce using rule 21 (optional)
+
+
+State 41
+
+   25 group: "{" production_combo "}" •
+
+    $default  reduce using rule 25 (group)
+
+
+State 42
+
+   10 concatenation: concatenation • production
+   11 alternative: production_combo "|" concatenation •  [$end, "]", "}", "|", RULE_SEPARATOR]
+
+    "["          shift, and go to state 13
+    "{"          shift, and go to state 14
+    NONTERMINAL  shift, and go to state 15
+    TOKEN        shift, and go to state 16
+    LITERAL      shift, and go to state 17
+
+    $default  reduce using rule 11 (alternative)
+
+    production  go to state 35
+    element     go to state 23
+    optional    go to state 24
+    repetition  go to state 25
+    group       go to state 26

@@ -1,9 +1,9 @@
-// ebnfparser.bison.y
+// ebnf_parser.bison.y
 
 /*
 MIT License
 
-Copyright (c) 2024 Zartaj Majeed
+Copyright (c) 2024-2026 Zartaj Majeed
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// bison -Wall -Wdangling-alias -Werror --color=always -Wcounterexamples --report=counterexamples,lookaheads --report-file=bisonreport.txt ebnfparser.bison.y
+// bison -Wall -Wdangling-alias -Werror --color=always -Wcounterexamples --report=counterexamples,lookaheads --report-file=bisonreport.txt ebnf_parser.bison.y
 
 // c++ parser classes skeleton file
 %skeleton "lalr1.cc"
@@ -37,8 +37,8 @@ SOFTWARE.
 // generate parser description report .output file
 %verbose
 
-%defines "ebnfparser.bison.h"
-%output "ebnfparser.bison.cpp"
+%defines "ebnf_parser.bison.h"
+%output "ebnf_parser.bison.cpp"
 
 // enable debug trace
 %define parse.trace
@@ -136,7 +136,7 @@ using namespace std;
 using namespace std;
 
 namespace {
-  constexpr auto defaultInputName = "inputstream"s;
+  const auto defaultInputName = "inputstream"s;
 }
 
 void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
@@ -147,6 +147,10 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 
 %initial-action {
 // %initial-action codeblock goes inside parse() function in .cpp, it's a separate brace-scoped block, anything declared here is local to this block and cannot be used anywhere else in parse()
+
+// suppress unused variable warning till fix in release after version 3.8.2, https://github.com/akimd/bison/commit/a166d5450e3f47587b98f6005f9f5627dbe21a5b
+// yynerrs_ is local to generated parse function
+  (void)yynerrs_;
 
   bisonParam.parseStartTime = steady_clock::now();
 
@@ -212,7 +216,7 @@ postprocess: %empty {
 
 %%
 
-#ifdef BUILD_MAIN
+#ifdef BUILD_BISON_MAIN
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -224,8 +228,8 @@ postprocess: %empty {
 #include <istream>
 #include <fstream>
 
-#include "lexer/ebnfparser_lexer.h"
-#include "ebnfparser.bison.h"
+#include "lexer/ebnf_lexer.h"
+#include "ebnf_parser.bison.h"
 
 using namespace std;
 using namespace ebnfparser;

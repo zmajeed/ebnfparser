@@ -1,9 +1,9 @@
-/* ebnfparser.flex.l */
+/* ebnf_lexer.flex.l */
 
 /*
 MIT License
 
-Copyright (c) 2024 Zartaj Majeed
+Copyright (c) 2024-2026 Zartaj Majeed
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/* flex -Cfe -o ebnfparser.flex.cpp ebnfparser.flex.l */
-/* g++ -O0 -Wall -Wextra -Werror -std=c++2b -o ebnfparser.lexer ebnfparser.flex.cpp */
+/* flex -Cfe -o ebnf_lexer.flex.cpp ebnf_lexer.flex.l */
+/* g++ -O0 -Wall -Wextra -Werror -std=c++2b -o ebnflexer ebnf_lexer.flex.cpp */
 
  // flex directives
 
@@ -41,8 +41,8 @@ SOFTWARE.
  // custom C++ lexer classname
 %option yyclass="Lexer"
 
- // custom prefix to turn yyFlexLexer into EbnfParserFlexLexer
-%option prefix="EbnfParser"
+ // custom prefix to turn yyFlexLexer into EbnfFlexLexer
+%option prefix="Ebnf"
 
 %option debug
 
@@ -69,9 +69,9 @@ SOFTWARE.
 #include <string>
 
 // bison generated header with C++ namespace and token definitions
-#include "ebnfparser.bison.h"
+#include "ebnf_parser.bison.h"
 
-#include "lexer/ebnfparser_lexer.h"
+#include "lexer/ebnf_lexer.h"
 
 #undef YY_DECL
 // dummy parameter because yyFlexLexer::yylex(void) in static flex C++ header yyFlexLexer.h cannot be overridden, only overloaded

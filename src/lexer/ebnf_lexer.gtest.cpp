@@ -1,9 +1,9 @@
-// ebnfparser_lexer.gtest.cpp
+// ebnf_lexer.gtest.cpp
 
 /*
 MIT License
 
-Copyright (c) 2024 Zartaj Majeed
+Copyright (c) 2024.-2026 Zartaj Majeed
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,8 @@ SOFTWARE.
 
 #include <gtest/gtest.h>
 
-#include "ebnfparser_lexer.h"
-#include "ebnfparser.bison.h"
+#include "ebnf_lexer.h"
+#include "ebnf_parser.bison.h"
 
 using namespace std;
 using namespace ::testing;

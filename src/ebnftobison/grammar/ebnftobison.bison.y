@@ -176,6 +176,10 @@ void ebnftobison::EbnfToBison::error(const location& loc, const string& msg) {
 %initial-action {
 // %initial-action codeblock goes inside parse() function in .cpp, it's a separate brace-scoped block, anything declared here is local to this block and cannot be used anywhere else in parse()
 
+// suppress unused variable warning till fix in release after version 3.8.2, https://github.com/akimd/bison/commit/a166d5450e3f47587b98f6005f9f5627dbe21a5b
+// yynerrs_ is local to generated parse function
+  (void)yynerrs_;
+
   bisonParam.stats.parseStartTime = steady_clock::now();
 
   if(loc.begin.filename == nullptr) {
@@ -259,6 +263,7 @@ concatenation: production {
 }
 | concatenation production {
   auto i = 0;
+(void)i;
   for(const auto& v: $1) {
     for(const auto& w: $production) {
       auto joined = v;
