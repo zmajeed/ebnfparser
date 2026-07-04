@@ -44,38 +44,37 @@ The EBNF defined for GQL in ISO-39075 is the same as that used for SQL in ISO-90
 This is the grammar without semantic actions at [`src/ebnfparser.no_actions/grammar/ebnfparser.bison.y`](src/ebnfparser.no_actions/grammar/ebnfparser.bison.y). The same grammar with code to convert EBNF to BNF is in [`src/ebnftobison/grammar`](src/ebnftobison/grammar)
 
 ```
-ebnf: header rule | header rule rules
+ebnf: header rules
 
-rules: RULE_SEPARATOR rule | rules RULE_SEPARATOR rule
+rules: rule | rules RULE_SEP rule
 
-rule: NONTERMINAL "::=" production_combo
+rule: NONTERMINAL "::=" alternatives
 
-production_combo: concatenation | alternative | COMMENT
+alternatives: concatenation | alternatives "|" concatenation
 
-concatenation: production | concatenation production
+concatenation: repeated_item | concatenation repeated_item
 
-alternative: production_combo "|" concatenation
+repeated_item: item | repetition
 
-production: element | optional | repetition | group
+repetition: item "..."
 
-element: NONTERMINAL | TOKEN | LITERAL | NONTERMINAL COMMENT | TOKEN COMMENT
+item: symbol | optional | group
 
-optional: "[" production_combo "]"
+optional: "[" alternatives "]"
 
-repetition: element "..." | group "..." | optional "..."
+group: "{" alternatives "}"
 
-group: "{" production_combo "}"
+symbol: NONTERMINAL | TOKEN | LITERAL
 
 header: %empty | header_lines
 
 header_lines: HEADER_LINE | header_lines HEADER_LINE
+
 ```
 
-The grammar recognizes `COMMENT` tokens in a few positions that correspond to where comments actually appear in the GQL grammar. If comments don't need to be preserved or transformed, then the COMMENT token can be completely dropped. On the other hand COMMENT tokens can be added to all or some positions as needed or every token can be turned into an object that has an optional comment field.
+This grammar allows freeform text before the first rule. Inline comments or full line comments introduced by `!!` notation are not part of the grammar. Instead they are dropped by the lexer or returned with the closest appropriate token for the parser to process based on an option.
 
-The GQL grammar has some header lines at the beginning of the file - these are accounted for by the `header` nonterminal.
-
-The `RULE_SEPARATOR` token is not an actual character or string. Rather it's a token returned by the lexer when the start of a new rule is detected.
+The `RULE_SEP` token is not an actual character or string. Rather it's a virtual token returned by the lexer to signal the end of a rule when needed.
 
 The two binary operators, `concatenation` and `alternative`, are left-associative by virtue of left-recursive sequence rules.
 
