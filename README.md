@@ -43,7 +43,7 @@ The EBNF defined for GQL in ISO-39075 is the same as that used for SQL in ISO-90
 
 This is the grammar without semantic actions at [`src/ebnfparser.no_actions/grammar/ebnfparser.bison.y`](src/ebnfparser.no_actions/grammar/ebnfparser.bison.y). The same grammar with code to convert EBNF to BNF is in [`src/ebnftobison/grammar`](src/ebnftobison/grammar)
 
-```
+```bison
 ebnf: header rules
 
 rules: rule | rules RULE_SEP rule
@@ -69,7 +69,6 @@ symbol: NONTERMINAL | TOKEN | LITERAL
 header: %empty | header_lines
 
 header_lines: HEADER_LINE | header_lines HEADER_LINE
-
 ```
 
 This grammar allows freeform text before the first rule. Inline comments or full line comments introduced by `!!` notation are not part of the grammar. Instead they are dropped by the lexer or returned with the closest appropriate token for the parser to process based on an option.
