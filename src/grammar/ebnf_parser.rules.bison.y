@@ -204,7 +204,9 @@ grammar: header rules postprocess
 
 rules: rule | rules V_RULE_SEP rule
 
-rule: NONTERMINAL "::=" alternative | NONTERMINAL "::=" see_syntax_rules | NONTERMINAL "::=" alternative see_syntax_rules
+rule: NONTERMINAL "::=" rhs
+
+rhs: alternative | see_syntax_rules | alternative see_syntax_rules
 
 alternative: concatenation | alternative "|" concatenation
 
