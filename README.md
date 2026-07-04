@@ -1,11 +1,56 @@
-# ebnfparser
-A Bison grammar and parser for the extended BNF (EBNF) syntax used to specify the GQL language in the ISO-39075 standard
+# A Grammar and Parser for EBNF
 
 This Bison grammar was written to parse the extended BNF notation used to specify the GQL Graph Query Language in the ISO-39075:2024 standard.
 
-The GQL EBNF grammar is briefly described in the XML representation of the grammar at https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.xml. The grammar is available in EBNF form at https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.txt.
+```bison
+grammar: header rules
 
-The grammar is fully described in Section 5.2 of ISO-39075:2024.
+rules: rule | rules RULE_SEP rule
+
+rule: NONTERMINAL "::=" alternative
+
+alternative: concatenation | alternative "|" concatenation
+
+concatenation: repetition | concatenation repetition
+
+repetition: item | item "..."
+
+item: symbol | optional | group
+
+optional: "[" alternative "]"
+
+group: "{" alternative "}"
+
+symbol: NONTERMINAL | TOKEN | LITERAL
+
+header: %empty | header_lines
+
+header_lines: HEADER_LINE | header_lines HEADER_LINE
+```
+
+The complete grammar is at [`src/grammar/ebnf_parser.bison.y`](src/grammar/ebnf_parser.bison.y).
+
+The grammar allows freeform text before the first rule that may be considered a header section of sorts.
+
+Comments in general are not supported elsewhere. But there is an element called `SeeTheRules` that looks like `!! See the Syntax Rules.` - it seems `SeeTheRules` occurs at the end of the rhs of a rule by itself or immediately after the alternatives. It may be thought of as a specific type of comment that has out-of-band information. It's not shown above because it makes the grammar a bit ugly and clunky.
+
+The `RULE_SEP` token is not an actual character or string. Rather it's a virtual token returned by the lexer to signal the end of a rule when needed.
+
+The two binary operators, `concatenation` and `alternative`, are left-associative by virtue of left-recursive sequence rules.
+
+Also `concatenation` has higher precedence than `alternative` because `alternative` derives from `concatenation` by the rule
+
+```
+alternative: concatenation | alternative "|" concatenation
+```
+
+The GQL EBNF notation is briefly described in https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.xml. The grammar is available in EBNF form at https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.txt.
+
+This EBNF variant was first used to define the SQL language for ISO-9075. It's still used in the latest SQL standard ISO-9075:2023.
+
+As far as I can tell this EBNF variant is unique to these two standards and hasn't been used anywhere else. But its features are typical of other extended BNF syntaxes.
+
+The grammar is also described in Section 5.2 of ISO-39075:2024.
 
 > < >  
 > A character string enclosed in angle brackets is the name of a syntactic element (i.e., the name of a BNF non-terminal symbol) of the GQL language.
@@ -36,52 +81,6 @@ The differences between ISO_IEC_39075(en).bnf.txt and docs/gqlgrammar.txt are
 - A stray alternative operator in the rule for `<pre-reserved word>` has been deleted
 - The definition of `<space>` has been corrected to U+0020 from U+00A0
 - A superfluous pair of group brackets has been removed
-
-The EBNF defined for GQL in ISO-39075 is the same as that used for SQL in ISO-9075. As far as I can tell it is unique to these two standards and hasn't been used anywhere else. But its features are typical of other extended BNF syntaxes. It should be straightforward to modify the grammar and parser in this repo to convert other EBNF notations to BNF.
-
-## A Grammar for EBNF
-
-The grammar for GQL EBNF is at [`src/grammar/ebnf_parser.bison.y`](src/grammar/ebnf_parser.bison.y). The same grammar with code to convert EBNF to BNF is in [`src/ebnftobison/grammar`](src/ebnftobison/grammar)
-
-```bison
-ebnf: header rules
-
-rules: rule | rules RULE_SEP rule
-
-rule: NONTERMINAL "::=" alternatives
-
-alternatives: concatenation | alternatives "|" concatenation
-
-concatenation: repeated_item | concatenation repeated_item
-
-repeated_item: item | repetition
-
-repetition: item "..."
-
-item: symbol | optional | group
-
-optional: "[" alternatives "]"
-
-group: "{" alternatives "}"
-
-symbol: NONTERMINAL | TOKEN | LITERAL
-
-header: %empty | header_lines
-
-header_lines: HEADER_LINE | header_lines HEADER_LINE
-```
-
-This grammar allows freeform text before the first rule. Inline comments or full line comments introduced by `!!` notation are not part of the grammar. Instead they are dropped by the lexer or returned with the closest appropriate token for the parser to process based on an option.
-
-The `RULE_SEP` token is not an actual character or string. Rather it's a virtual token returned by the lexer to signal the end of a rule when needed.
-
-The two binary operators, `concatenation` and `alternative`, are left-associative by virtue of left-recursive sequence rules.
-
-Also `concatenation` has higher precedence than `alternative` because `alternative` derives from `concatenation` by the rule
-
-```
-alternative: production_combo "|" concatenation
-```
 
 ## Build And Test
 

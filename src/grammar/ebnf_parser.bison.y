@@ -196,6 +196,9 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 %token RIGHT_BRACE          "}"
 %token ELLIPSIS             "..."
 %token BAR                  "|"
+%token BANG_BANG            "!!"
+
+%token SEE_SYNTAX           "see syntax rules"
 
 %token V_RULE_SEP
 
@@ -214,27 +217,27 @@ grammar: header rules postprocess
 
 rules: rule | rules V_RULE_SEP rule
 
-rule: NONTERMINAL "::=" alternatives
+rule: NONTERMINAL "::=" alternative | NONTERMINAL "::=" see_syntax_rules | NONTERMINAL "::=" alternative see_syntax_rules
 
-alternatives: concatenation | alternatives "|" concatenation
+alternative: concatenation | alternative "|" concatenation
 
-concatenation: repeated_item | concatenation repeated_item
+concatenation: repetition | concatenation repetition
 
-repeated_item: item | repetition
-
-repetition: item "..."
+repetition: item | item "..."
 
 item: symbol | optional | group
 
-optional: "[" alternatives "]"
+optional: "[" alternative "]"
 
-group: "{" alternatives "}"
+group: "{" alternative "}"
 
 symbol: NONTERMINAL | TOKEN | LITERAL
 
 header: %empty | header_lines
 
 header_lines: HEADER_LINE | header_lines HEADER_LINE
+
+see_syntax_rules: "!!" "see syntax rules"
 
 // midrule action for postprocessing
 postprocess: %empty {

@@ -61,7 +61,7 @@ SOFTWARE.
  // flex start conditions ie states
 %x RULES
 %x RULE_START
-%x COMMENT
+%x BANG_BANG
 
  // top of generated .cpp file
 %{
@@ -131,7 +131,7 @@ using symbol_type = EbnfParser::symbol_type;
 
  /* start of rule marks end of previous rule */
  /* put matched start of rule back to match again after returning rule separator token */
-  "<"[-A-Za-z0-9 _/]+">"[ ]*::= {
+  "<"[-A-Za-z0-9 _/]+">"[[:space:]]*::= {
     BEGIN(RULE_START);
     yyless(0);
     return EbnfParser::make_V_RULE_SEP(loc);
@@ -198,9 +198,10 @@ using symbol_type = EbnfParser::symbol_type;
     return EbnfParser::make_ELLIPSIS(loc);
   }
 
- /* start of comment to end of line */
-  "!!".* {
+  "!! " {
+    BEGIN(BANG_BANG);
     loc.columns(yyleng);
+    return EbnfParser::make_BANG_BANG(loc);
   }
 
  /* match newlines separately to correctly update line numbers */
@@ -213,6 +214,14 @@ using symbol_type = EbnfParser::symbol_type;
     loc.columns(yyleng);
   }
 
+}
+
+<BANG_BANG>{
+  "See the Syntax Rules." {
+    BEGIN(RULES);
+    loc.columns(yyleng);
+    return EbnfParser::make_SEE_SYNTAX(loc);
+  }
 }
 
  /* all input must be consumed in every state to prevent flex scanner jammed error */

@@ -255,7 +255,6 @@ TEST(BisonParser, test_0009) {
 }
 
 TEST(BisonParser, test_0010) {
-
   stringstream s(R"%(
 <session set command> ::=
     SESSION SET { <session set schema clause>
@@ -279,7 +278,6 @@ TEST(BisonParser, test_0010) {
 }
 
 TEST(BisonParser, test_0011) {
-
   stringstream s(R"%(
 <single quoted character representation> ::=
     <character representation>
@@ -301,7 +299,6 @@ TEST(BisonParser, test_0011) {
 }
 
 TEST(BisonParser, test_0012) {
-
   stringstream s(R"%(
 <double single quote> ::=
     <quote> <quote>
@@ -349,7 +346,6 @@ TEST(BisonParser, test_0013) {
 }
 
 TEST(BisonParser, test_0014) {
-
   stringstream s(R"%(
 
 <GQL-program> ::=
@@ -378,7 +374,6 @@ TEST(BisonParser, test_0014) {
 }
 
 TEST(BisonParser, test_0015) {
-
   stringstream s(R"%(
 ************************************************************************************************
 This file is a "digital artifact" that contains the grammar specified by ISO/IEC 39075.
@@ -413,48 +408,11 @@ GQL language.
 }
 
 TEST(BisonParser, test_0016) {
-
   stringstream s(R"%(
-!! grammar starts here
-
-!! rule 1
-<GQL-program> ::=
-    <program activity> [ <session close command> ]
-  | <session close command>
-
-!! rule 2
-<program activity> ::=
-    <session activity>
-  | <transaction activity>
-
-
-)%");
-
-  Lexer lexer(&s);
-
-  BisonParam bisonParam;
-  LexParam lexParam;
-
-  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
-    return lexer.yylex(lexParam);
-  },
-  bisonParam,
-  lexParam);
-
-  EXPECT_EQ(parser(), 0);
-}
-
-TEST(BisonParser, test_0017) {
-
-  stringstream s(R"%(
-!! grammar starts here
-
-!! rule 1
            <GQL-program> ::=
     <program activity> [ <session close command> ]
   | <session close command>
 
-!! rule 2
       <program activity> ::=
     <session activity>
   | <transaction activity>
@@ -476,17 +434,12 @@ TEST(BisonParser, test_0017) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0018) {
-
+TEST(BisonParser, test_0017) {
   stringstream s(R"%(
-!! grammar starts here
-
-!! rule 1
            <GQL-program>
   ::= <program activity> [ <session close command> ]
   | <session close command>
 
-!! rule 2
       <program activity>
 ::=
     <session activity>
@@ -510,8 +463,7 @@ TEST(BisonParser, test_0018) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0019) {
-
+TEST(BisonParser, test_0018) {
   stringstream s(R"%(
 <implementation-defined access mode> ::=
     !! See the Syntax Rules.
@@ -532,8 +484,7 @@ TEST(BisonParser, test_0019) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0020) {
-
+TEST(BisonParser, test_0019) {
   stringstream s(R"%(
 <implementation-defined access mode> ::=
     !! See the Syntax Rules.
@@ -557,8 +508,7 @@ TEST(BisonParser, test_0020) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0021) {
-
+TEST(BisonParser, test_0020) {
   stringstream s(R"%(
 <pre-reserved word> ::=
     
@@ -583,8 +533,7 @@ TEST(BisonParser, test_0021) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0022) {
-
+TEST(BisonParser, test_0021) {
   stringstream s(R"%(
 <space> ::=
     " "
@@ -604,7 +553,7 @@ TEST(BisonParser, test_0022) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0023) {
+TEST(BisonParser, test_0022) {
 
   stringstream s(R"%(
 <right brace> ::=
@@ -625,7 +574,7 @@ TEST(BisonParser, test_0023) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0024) {
+TEST(BisonParser, test_0023) {
 
   stringstream s(R"%(
 <reverse solidus> ::=
@@ -649,7 +598,7 @@ TEST(BisonParser, test_0024) {
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_0025) {
+TEST(BisonParser, test_0024) {
 
   stringstream s("<a> := b");
 
