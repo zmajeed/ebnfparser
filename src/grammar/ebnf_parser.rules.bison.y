@@ -1,4 +1,4 @@
-// ebnf_parser.bison.y
+// ebnf_parser.rules.bison.y
 
 /*
 MIT License
@@ -24,7 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// bison -Wall -Wdangling-alias -Werror --color=always -Wcounterexamples --report=counterexamples,lookaheads --report-file=bisonreport.txt ebnf_parser.bison.y
+// ebnf grammar without cluter of semantic actions
+// bison -f syntax-only -Wall -Wdangling-alias -Werror --color=always -Wcounterexamples --report=counterexamples,lookaheads,solved --report-file=bisonreport.txt ebnf_parser.bison.y
 
 // c++ parser classes skeleton file
 %skeleton "lalr1.cc"
@@ -62,6 +63,7 @@ SOFTWARE.
 #include <string>
 #include <functional>
 #include <chrono>
+#include <print>
 
 #include "locations.bison.h"
 
@@ -77,6 +79,20 @@ struct BisonParam {
 };
 
 }
+
+// println formatter for location object
+template<>
+struct std::formatter<ebnfparser::location> {
+  std::format_context::iterator format(const ebnfparser::location& loc, std::format_context& ctx) const {
+    std::ostringstream os;
+    os << loc;
+    return std::format_to(ctx.out(), "{}", os.str());
+  }
+
+  constexpr std::format_parse_context::const_iterator parse(std::format_parse_context& ctx) const {
+    return ctx.begin();
+  }
+};
 
 }
 
@@ -132,6 +148,7 @@ using namespace std;
 // %code codeblock goes at top of .cpp outside namespace and parser class
 
 #include <chrono>
+#include <print>
 
 using namespace std;
 
@@ -140,7 +157,7 @@ namespace {
 }
 
 void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
-  cerr << "error at " << loc << ": " << msg << "\n";
+  println("error at {}: {}", loc, msg);
 }
 
 }
@@ -167,41 +184,40 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 %token ELLIPSIS             "..."
 %token BAR                  "|"
 
-%token RULE_SEPARATOR
+%token V_RULE_SEP
 
 %token <string> NONTERMINAL
 %token <string> TOKEN
 %token <string> LITERAL
-%token <string> COMMENT
 %token <string> HEADER_LINE
 
-%start ebnf
+%start grammar
 
 %%
 
 // no code allowed in rules section, just bison comments that are dropped from .cpp
 
-ebnf: header rule postprocess | header rule rules postprocess
+grammar: header rules postprocess
 
-rules: RULE_SEPARATOR rule | rules RULE_SEPARATOR rule
+rules: rule | rules V_RULE_SEP rule
 
-rule: NONTERMINAL "::=" production_combo
+rule: NONTERMINAL "::=" alternatives
 
-production_combo: concatenation | alternative | COMMENT
+alternatives: concatenation | alternatives "|" concatenation
 
-concatenation: production | concatenation production
+concatenation: repeated_item | concatenation repeated_item
 
-alternative: production_combo "|" concatenation
+repeated_item: item | repetition
 
-production: element | optional | repetition | group
+repetition: item "..."
 
-element: NONTERMINAL | TOKEN | LITERAL | NONTERMINAL COMMENT | TOKEN COMMENT
+item: symbol | optional | group
 
-optional: "[" production_combo "]"
+optional: "[" alternatives "]"
 
-repetition: element "..." | group "..." | optional "..."
+group: "{" alternatives "}"
 
-group: "{" production_combo "}"
+symbol: NONTERMINAL | TOKEN | LITERAL
 
 header: %empty | header_lines
 

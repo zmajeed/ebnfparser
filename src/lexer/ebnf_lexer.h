@@ -39,7 +39,7 @@ public:
 // can only declare here since flex generates the implementation
 // dummy parameter because virtual int yyFlexLexer::yylex() cannot be overridden due to conflicting return type
 // would not be a problem if yylex was being generated with some parameters
-  EbnfParser::symbol_type yylex(location&);
+  EbnfParser::symbol_type yylex(LexParam&);
 
   Lexer() = default;
 

@@ -38,24 +38,24 @@ using namespace ::testing;
 
 namespace ebnfparser::testing {
 
-TEST(BisonParser, test_0) {
+TEST(BisonParser, test_0000) {
 
   stringstream s("<true literal> ::= TRUE");
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_1) {
+TEST(BisonParser, test_0001) {
 
   stringstream s(R"%(<true literal> ::=
   TRUE
@@ -65,37 +65,37 @@ TEST(BisonParser, test_1) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_2) {
+TEST(BisonParser, test_0002) {
 
   stringstream s("<nested query specification> ::= <left brace> <query specification> <right brace>");
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_3) {
+TEST(BisonParser, test_0003) {
 
   stringstream s(R"%(
 <GQL-program> ::=
@@ -105,19 +105,19 @@ TEST(BisonParser, test_3) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_4) {
+TEST(BisonParser, test_0004) {
 
   stringstream s(R"%(
 <session activity> ::=
@@ -127,19 +127,19 @@ TEST(BisonParser, test_4) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_5) {
+TEST(BisonParser, test_0005) {
 
   stringstream s(R"%(
 <transaction characteristics> ::=
@@ -148,19 +148,19 @@ TEST(BisonParser, test_5) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_6) {
+TEST(BisonParser, test_0006) {
 
   stringstream s(R"%(
 <create graph statement> ::=
@@ -173,19 +173,19 @@ TEST(BisonParser, test_6) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_7) {
+TEST(BisonParser, test_0007) {
 
   stringstream s(R"%(
 <delete statement> ::=
@@ -195,19 +195,19 @@ TEST(BisonParser, test_7) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_8) {
+TEST(BisonParser, test_0008) {
 
   stringstream s(R"%(
 <exists predicate> ::=
@@ -220,19 +220,19 @@ TEST(BisonParser, test_8) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_9) {
+TEST(BisonParser, test_0009) {
 
   stringstream s(R"%(
 <transaction activity> ::=
@@ -242,19 +242,19 @@ TEST(BisonParser, test_9) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_10) {
+TEST(BisonParser, test_0010) {
 
   stringstream s(R"%(
 <session set command> ::=
@@ -266,19 +266,19 @@ TEST(BisonParser, test_10) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_11) {
+TEST(BisonParser, test_0011) {
 
   stringstream s(R"%(
 <single quoted character representation> ::=
@@ -288,19 +288,19 @@ TEST(BisonParser, test_11) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_12) {
+TEST(BisonParser, test_0012) {
 
   stringstream s(R"%(
 <double single quote> ::=
@@ -310,19 +310,19 @@ TEST(BisonParser, test_12) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_13) {
+TEST(BisonParser, test_0013) {
 
   stringstream s(R"%(
 <GQL-program> ::=
@@ -336,19 +336,19 @@ TEST(BisonParser, test_13) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_14) {
+TEST(BisonParser, test_0014) {
 
   stringstream s(R"%(
 
@@ -365,19 +365,152 @@ TEST(BisonParser, test_14) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_15) {
+TEST(BisonParser, test_0015) {
+
+  stringstream s(R"%(
+************************************************************************************************
+This file is a "digital artifact" that contains the grammar specified by ISO/IEC 39075.
+
+This grammar may be used by implementers of GQL-implementations when generating parsers for the 
+GQL language.
+************************************************************************************************
+
+<GQL-program> ::=
+    <program activity> [ <session close command> ]
+  | <session close command>
+
+<program activity> ::=
+    <session activity>
+  | <transaction activity>
+
+
+)%");
+
+  Lexer lexer(&s);
+
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+}
+
+TEST(BisonParser, test_0016) {
+
+  stringstream s(R"%(
+!! grammar starts here
+
+!! rule 1
+<GQL-program> ::=
+    <program activity> [ <session close command> ]
+  | <session close command>
+
+!! rule 2
+<program activity> ::=
+    <session activity>
+  | <transaction activity>
+
+
+)%");
+
+  Lexer lexer(&s);
+
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+}
+
+TEST(BisonParser, test_0017) {
+
+  stringstream s(R"%(
+!! grammar starts here
+
+!! rule 1
+           <GQL-program> ::=
+    <program activity> [ <session close command> ]
+  | <session close command>
+
+!! rule 2
+      <program activity> ::=
+    <session activity>
+  | <transaction activity>
+
+
+)%");
+
+  Lexer lexer(&s);
+
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+}
+
+TEST(BisonParser, test_0018) {
+
+  stringstream s(R"%(
+!! grammar starts here
+
+!! rule 1
+           <GQL-program>
+  ::= <program activity> [ <session close command> ]
+  | <session close command>
+
+!! rule 2
+      <program activity>
+::=
+    <session activity>
+|
+<transaction activity>
+
+
+)%");
+
+  Lexer lexer(&s);
+
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+}
+
+TEST(BisonParser, test_0019) {
 
   stringstream s(R"%(
 <implementation-defined access mode> ::=
@@ -387,19 +520,19 @@ TEST(BisonParser, test_15) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_16) {
+TEST(BisonParser, test_0020) {
 
   stringstream s(R"%(
 <implementation-defined access mode> ::=
@@ -412,19 +545,19 @@ TEST(BisonParser, test_16) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_17) {
+TEST(BisonParser, test_0021) {
 
   stringstream s(R"%(
 <pre-reserved word> ::=
@@ -438,19 +571,19 @@ TEST(BisonParser, test_17) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_18) {
+TEST(BisonParser, test_0022) {
 
   stringstream s(R"%(
 <space> ::=
@@ -459,19 +592,19 @@ TEST(BisonParser, test_18) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_19) {
+TEST(BisonParser, test_0023) {
 
   stringstream s(R"%(
 <right brace> ::=
@@ -480,19 +613,19 @@ TEST(BisonParser, test_19) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_20) {
+TEST(BisonParser, test_0024) {
 
   stringstream s(R"%(
 <reverse solidus> ::=
@@ -504,32 +637,32 @@ TEST(BisonParser, test_20) {
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_EQ(parser(), 0);
 }
 
-TEST(BisonParser, test_21) {
+TEST(BisonParser, test_0025) {
 
   stringstream s("<a> := b");
 
   Lexer lexer(&s);
 
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   EXPECT_NE(parser(), 0);
 }

@@ -76,7 +76,7 @@ SOFTWARE.
 #undef YY_DECL
 // dummy parameter because yyFlexLexer::yylex(void) in static flex C++ header yyFlexLexer.h cannot be overridden, only overloaded
 // parameter has no name to avoid unused parameter warning
-#define YY_DECL ebnfparser::EbnfParser::symbol_type ebnfparser::Lexer::yylex(location& loc)
+#define YY_DECL ebnfparser::EbnfParser::symbol_type ebnfparser::Lexer::yylex(LexParam& param)
 
 // fix flex error could not convert 0 from int to symbol_type for #define YY_NULL 0
 // caused by turning on bison %locations because symbol_type no longer has single int constructor for implicit conversion
@@ -91,16 +91,23 @@ using symbol_type = EbnfParser::symbol_type;
 
 %}
 
- // flex rules
 %%
- // code must be indented
+
+ // code appears inside generated yylex function at start
 
   string headerLine;
 
+ // position in input stream
+  auto& loc = param.loc;
+ // update current position to previous line and column numbers
   loc.step();
 
- /* first rule of grammar is assumed to start at beginning of line */
-^"<"[-A-Za-z0-9 _/]+">" {
+ // flex rules section
+ /* only c-style comments starting at second column allowed inside rules section */
+ /* first flex rule starts at beginning of line */
+
+ /* ebnf rule begins if nonterminal is first non-whitespace on line */
+^([[:space:]]{-}[\n])*"<"[-A-Za-z0-9 _/]+">" {
   BEGIN(RULES);
   loc.columns(yyleng);
   return EbnfParser::make_NONTERMINAL(yytext, loc);
@@ -127,7 +134,7 @@ using symbol_type = EbnfParser::symbol_type;
   "<"[-A-Za-z0-9 _/]+">"[ ]*::= {
     BEGIN(RULE_START);
     yyless(0);
-    return EbnfParser::make_RULE_SEPARATOR(loc);
+    return EbnfParser::make_V_RULE_SEP(loc);
   }
 
  /* rematch start of rule that was matched earlier */
@@ -194,7 +201,6 @@ using symbol_type = EbnfParser::symbol_type;
  /* start of comment to end of line */
   "!!".* {
     loc.columns(yyleng);
-    return EbnfParser::make_COMMENT(yytext, loc);
   }
 
  /* match newlines separately to correctly update line numbers */
