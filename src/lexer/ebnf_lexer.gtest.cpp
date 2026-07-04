@@ -39,14 +39,24 @@ using namespace ::testing;
 
 namespace ebnfparser::testing {
 
-TEST(Lexer, test_0) {
+TEST(Lexer, test_0000) {
 
   stringstream s("<true literal>");
   Lexer lexer(&s);
+  LexParam lexParam{};
 
-  location loc{};
+  auto token = lexer.yylex(lexParam);
 
-  auto token = lexer.yylex(loc);
+  EXPECT_EQ(token.kind(), EbnfParser::symbol_kind::S_NONTERMINAL);
+}
+
+TEST(Lexer, test_0001) {
+
+  stringstream s("    <true literal>");
+  Lexer lexer(&s);
+  LexParam lexParam{};
+
+  auto token = lexer.yylex(lexParam);
 
   EXPECT_EQ(token.kind(), EbnfParser::symbol_kind::S_NONTERMINAL);
 }

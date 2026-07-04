@@ -1,11 +1,56 @@
-# ebnfparser
-A Bison grammar and parser for the extended BNF (EBNF) syntax used to specify the GQL language in the ISO-39075 standard
+# A Grammar and Parser for EBNF
 
 This Bison grammar was written to parse the extended BNF notation used to specify the GQL Graph Query Language in the ISO-39075:2024 standard.
 
-The GQL EBNF grammar is briefly described in the XML representation of the grammar at https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.xml. The grammar is available in EBNF form at https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.txt.
+```bison
+grammar: header rules
 
-The grammar is fully described in Section 5.2 of ISO-39075:2024.
+rules: rule | rules RULE_SEP rule
+
+rule: NONTERMINAL "::=" alternative
+
+alternative: concatenation | alternative "|" concatenation
+
+concatenation: repetition | concatenation repetition
+
+repetition: item | item "..."
+
+item: symbol | optional | group
+
+optional: "[" alternative "]"
+
+group: "{" alternative "}"
+
+symbol: NONTERMINAL | TOKEN | LITERAL
+
+header: %empty | header_lines
+
+header_lines: HEADER_LINE | header_lines HEADER_LINE
+```
+
+The complete grammar is at [`src/grammar/ebnf_parser.bison.y`](src/grammar/ebnf_parser.bison.y).
+
+The grammar allows freeform text before the first rule that may be considered a header section of sorts.
+
+Comments in general are not supported elsewhere. But there is an element called `SeeTheRules` that looks like `!! See the Syntax Rules.` - it seems `SeeTheRules` occurs at the end of the rhs of a rule by itself or immediately after the alternatives. It may be thought of as a specific type of comment that has out-of-band information. It's not shown above because it makes the grammar a bit ugly and clunky.
+
+The `RULE_SEP` token is not an actual character or string. Rather it's a virtual token returned by the lexer to signal the end of a rule when needed.
+
+The two binary operators, `concatenation` and `alternative`, are left-associative by virtue of left-recursive sequence rules.
+
+Also `concatenation` has higher precedence than `alternative` because `alternative` derives from `concatenation` by the rule
+
+```
+alternative: concatenation | alternative "|" concatenation
+```
+
+The GQL EBNF notation is briefly described in https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.xml. The grammar is available in EBNF form at https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.txt.
+
+This EBNF variant was first used to define the SQL language for ISO-9075. It's still used in the latest SQL standard ISO-9075:2023.
+
+As far as I can tell this EBNF variant is unique to these two standards and hasn't been used anywhere else. But its features are typical of other extended BNF syntaxes.
+
+The grammar is also described in Section 5.2 of ISO-39075:2024.
 
 > < >  
 > A character string enclosed in angle brackets is the name of a syntactic element (i.e., the name of a BNF non-terminal symbol) of the GQL language.
@@ -37,54 +82,6 @@ The differences between ISO_IEC_39075(en).bnf.txt and docs/gqlgrammar.txt are
 - The definition of `<space>` has been corrected to U+0020 from U+00A0
 - A superfluous pair of group brackets has been removed
 
-The EBNF defined for GQL in ISO-39075 is the same as that used for SQL in ISO-9075. As far as I can tell it is unique to these two standards and hasn't been used anywhere else. But its features are typical of other extended BNF syntaxes. It should be straightforward to modify the grammar and parser in this repo to convert other EBNF notations to BNF.
-
-## A Grammar for EBNF
-
-This is the grammar without semantic actions at [`src/ebnfparser.no_actions/grammar/ebnfparser.bison.y`](src/ebnfparser.no_actions/grammar/ebnfparser.bison.y). The same grammar with code to convert EBNF to BNF is in [`src/ebnftobison/grammar`](src/ebnftobison/grammar)
-
-```
-ebnf: header rule | header rule rules
-
-rules: RULE_SEPARATOR rule | rules RULE_SEPARATOR rule
-
-rule: NONTERMINAL "::=" production_combo
-
-production_combo: concatenation | alternative | COMMENT
-
-concatenation: production | concatenation production
-
-alternative: production_combo "|" concatenation
-
-production: element | optional | repetition | group
-
-element: NONTERMINAL | TOKEN | LITERAL | NONTERMINAL COMMENT | TOKEN COMMENT
-
-optional: "[" production_combo "]"
-
-repetition: element "..." | group "..." | optional "..."
-
-group: "{" production_combo "}"
-
-header: %empty | header_lines
-
-header_lines: HEADER_LINE | header_lines HEADER_LINE
-```
-
-The grammar recognizes `COMMENT` tokens in a few positions that correspond to where comments actually appear in the GQL grammar. If comments don't need to be preserved or transformed, then the COMMENT token can be completely dropped. On the other hand COMMENT tokens can be added to all or some positions as needed or every token can be turned into an object that has an optional comment field.
-
-The GQL grammar has some header lines at the beginning of the file - these are accounted for by the `header` nonterminal.
-
-The `RULE_SEPARATOR` token is not an actual character or string. Rather it's a token returned by the lexer when the start of a new rule is detected.
-
-The two binary operators, `concatenation` and `alternative`, are left-associative by virtue of left-recursive sequence rules.
-
-Also `concatenation` has higher precedence than `alternative` because `alternative` derives from `concatenation` by the rule
-
-```
-alternative: production_combo "|" concatenation
-```
-
 ## Build And Test
 
 The repo has a submodule dependency on GoogleTest that should be initialized with `git submodule update --init --recursive`
@@ -109,7 +106,7 @@ ctest --test-dir build
 
 ## Source Structure
 
-Source code under [`src/`](src/) is divided into a parser without semantic actions in [`src/ebnfparser.no_actions/`](src/ebnfparser.no_actions/) and a parser that converts EBNF to Bison rules in [`src/ebnftobison/`](src/ebnftobison/). Both directories have Bison and Flex rules files in `grammar/` - source files generated by Bison and Flex are in the corresponding `grammar/` directory in the build tree. Parser tests and standalone parser executables are in `parser/`. The lexer class and tests are in `lexer/`.
+Bison and Flex rules files are in `src/grammar` - source files generated by Bison and Flex are in the corresponding `src/grammar` directory in the build tree. Parser tests and a standalone parser executable are in `src/parser`. The lexer class and tests are in `src/lexer`.
 
 The GQL grammar file is in [`docs/`](docs/).
 

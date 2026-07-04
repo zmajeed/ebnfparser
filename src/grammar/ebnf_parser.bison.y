@@ -62,6 +62,7 @@ SOFTWARE.
 #include <string>
 #include <functional>
 #include <chrono>
+#include <print>
 
 #include "locations.bison.h"
 
@@ -76,7 +77,32 @@ struct BisonParam {
   time_point<steady_clock> parseEndTime;
 };
 
+// info for lexer to use in yylex
+struct LexParam {
+// position in input stream for lexer to update
+  location loc{};
+
+// lexical feedback callbacks, override these in tests as needed
+
+// return count of arguments expected for operation or option
+  function<int(const string&)> get_arg_count{};
+};
+
 }
+
+// println formatter for location object
+template<>
+struct std::formatter<ebnfparser::location> {
+  std::format_context::iterator format(const ebnfparser::location& loc, std::format_context& ctx) const {
+    std::ostringstream os;
+    os << loc;
+    return std::format_to(ctx.out(), "{}", os.str());
+  }
+
+  constexpr std::format_parse_context::const_iterator parse(std::format_parse_context& ctx) const {
+    return ctx.begin();
+  }
+};
 
 }
 
@@ -88,17 +114,18 @@ struct BisonParam {
 
 // parser constructor parameter 1
 // this is the yylex bison will call, it can have any signature we want since it's a lambda passed in by the client that wraps and hides the actual yylex call
-%parse-param {function<EbnfParser::symbol_type(location&)> yylex}
-
-%parse-param {BisonParam& bisonParam}
+%parse-param {function<EbnfParser::symbol_type(LexParam&)> yylex}
 
 // parser constructor parameter 2
+%parse-param {BisonParam& bisonParam}
+
+// parser constructor parameter 3
 // only because each lex-param also must be parse-param
-%parse-param {location& loc}
+%parse-param {LexParam& lexParam}
 
 // yylex parameter 1
-// pass location to lexer to update
-%lex-param {location& loc}
+// pass location and lexical feedback info to lexer
+%lex-param {LexParam& lexParam}
 
 // use actual types for tokens
 %define api.value.type variant
@@ -132,6 +159,7 @@ using namespace std;
 // %code codeblock goes at top of .cpp outside namespace and parser class
 
 #include <chrono>
+#include <print>
 
 using namespace std;
 
@@ -140,7 +168,7 @@ namespace {
 }
 
 void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
-  cerr << "error at " << loc << ": " << msg << "\n";
+  println("error at {}: {}", loc, msg);
 }
 
 }
@@ -154,6 +182,8 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 
   bisonParam.parseStartTime = steady_clock::now();
 
+  auto& loc = lexParam.loc;
+
   if(loc.begin.filename == nullptr) {
     loc.initialize(&defaultInputName);
   }
@@ -166,46 +196,50 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 %token RIGHT_BRACE          "}"
 %token ELLIPSIS             "..."
 %token BAR                  "|"
+%token BANG_BANG            "!!"
 
-%token RULE_SEPARATOR
+%token SEE_SYNTAX           "see syntax rules"
+
+%token V_RULE_SEP
 
 %token <string> NONTERMINAL
 %token <string> TOKEN
 %token <string> LITERAL
-%token <string> COMMENT
 %token <string> HEADER_LINE
 
-%start ebnf
+%start grammar
 
 %%
 
 // no code allowed in rules section, just bison comments that are dropped from .cpp
 
-ebnf: header rule postprocess | header rule rules postprocess
+grammar: header rules postprocess
 
-rules: RULE_SEPARATOR rule | rules RULE_SEPARATOR rule
+rules: rule | rules V_RULE_SEP rule
 
-rule: NONTERMINAL "::=" production_combo
+rule: NONTERMINAL "::=" rhs
 
-production_combo: concatenation | alternative | COMMENT
+rhs: alternative | see_syntax_rules | alternative see_syntax_rules
 
-concatenation: production | concatenation production
+alternative: concatenation | alternative "|" concatenation
 
-alternative: production_combo "|" concatenation
+concatenation: repetition | concatenation repetition
 
-production: element | optional | repetition | group
+repetition: item | item "..."
 
-element: NONTERMINAL | TOKEN | LITERAL | NONTERMINAL COMMENT | TOKEN COMMENT
+item: symbol | optional | group
 
-optional: "[" production_combo "]"
+optional: "[" alternative "]"
 
-repetition: element "..." | group "..." | optional "..."
+group: "{" alternative "}"
 
-group: "{" production_combo "}"
+symbol: NONTERMINAL | TOKEN | LITERAL
 
 header: %empty | header_lines
 
 header_lines: HEADER_LINE | header_lines HEADER_LINE
+
+see_syntax_rules: "!!" "see syntax rules"
 
 // midrule action for postprocessing
 postprocess: %empty {
@@ -293,14 +327,14 @@ int main(int argc, char* argv[])
     lexer.switch_streams(&fileStream);
   }
 
-  location loc(inputFilename.get());
   BisonParam bisonParam;
+  LexParam lexParam{.loc = location(inputFilename.get())};
 
-  EbnfParser parser([&lexer](location& loc) -> EbnfParser::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
   lexer.set_debug(debug);
   parser.set_debug_level(debug);
