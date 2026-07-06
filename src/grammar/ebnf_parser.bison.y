@@ -60,11 +60,16 @@ SOFTWARE.
 // standard c++ #includes and defines
 
 #include <string>
+#include <vector>
+#include <set>
+#include <map>
 #include <functional>
 #include <chrono>
 #include <print>
 
 #include "locations.bison.h"
+
+#include "ast/ebnf_ast.h"
 
 namespace ebnfparser {
 
@@ -72,20 +77,18 @@ using namespace std;
 using namespace chrono;
 
 struct BisonParam {
-  duration<double> parseTimeTakenSec;
-  time_point<steady_clock> parseStartTime;
-  time_point<steady_clock> parseEndTime;
+  AstNode ast{};
+  struct Stats {
+    time_point<steady_clock> parseStartTime;
+    time_point<steady_clock> parseEndTime;
+    duration<double> parseTimeSec;
+  } stats{};
 };
 
 // info for lexer to use in yylex
 struct LexParam {
 // position in input stream for lexer to update
   location loc{};
-
-// lexical feedback callbacks, override these in tests as needed
-
-// return count of arguments expected for operation or option
-  function<int(const string&)> get_arg_count{};
 };
 
 }
@@ -158,8 +161,14 @@ using namespace std;
 %code {
 // %code codeblock goes at top of .cpp outside namespace and parser class
 
+#include <string>
+#include <vector>
+#include <set>
+#include <map>
 #include <chrono>
 #include <print>
+
+#include "ast/ebnf_ast.h"
 
 using namespace std;
 
@@ -180,7 +189,7 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 // yynerrs_ is local to generated parse function
   (void)yynerrs_;
 
-  bisonParam.parseStartTime = steady_clock::now();
+  bisonParam.stats.parseStartTime = steady_clock::now();
 
   auto& loc = lexParam.loc;
 
@@ -207,45 +216,148 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 %token <string> LITERAL
 %token <string> HEADER_LINE
 
+%nterm <Grammar> grammar
+%nterm <Header> header
+%nterm <Rule> rule
+%nterm <Alternative> alternative
+%nterm <Optional> optional
+%nterm <Group> group
+%nterm <Concatenation> concatenation
+%nterm <Repetition> repetition
+%nterm <Item> item
+
+%nterm <string> symbol
+
+%nterm <vector<string>> header_lines
+%nterm <vector<Rule>> rules
+%nterm <vector<Alternative>> rhs
+
 %start grammar
 
 %%
 
 // no code allowed in rules section, just bison comments that are dropped from .cpp
 
-grammar: header rules postprocess
+grammar: header rules postprocess {
+  $$.header = move($header);
+  $$.rules = move($rules);
+  bisonParam.ast = move($$);
+}
 
-rules: rule | rules V_RULE_SEP rule
+rules:
+  rule {
+  if($rule.nonterminal.empty()) {
+    break;
+  }
+  $$.push_back(move($rule));
+}
+| rules V_RULE_SEP rule {
+  if($rule.nonterminal.empty()) {
+    break;
+  }
+  $$ = move($1);
+  $$.push_back(move($rule));
+}
 
-rule: NONTERMINAL "::=" rhs
+rule:
+  %empty {
+}
+| NONTERMINAL "::=" rhs {
+  $$.nonterminal = move($NONTERMINAL);
+  $$.alternatives = move($rhs);
+}
 
-rhs: alternative | see_syntax_rules | alternative see_syntax_rules
+rhs:
+  alternative {
+  $$.push_back($alternative);
+}
+| see_syntax_rules {
+}
+| alternative see_syntax_rules {
+  $$.push_back($alternative);
+}
 
-alternative: concatenation | alternative "|" concatenation
+alternative:
+  concatenation {
+  $$.concats.push_back(move($concatenation));
+}
+| alternative "|" concatenation {
+  $$ = move($1);
+  $$.concats.push_back(move($concatenation));
+}
 
-concatenation: repetition | concatenation repetition
+concatenation:
+  repetition {
+  $$.reps.push_back(move($repetition));
+}
+| concatenation repetition {
+  $$ = move($1);
+  $$.reps.push_back(move($repetition));
+}
 
-repetition: item | item "..."
+repetition:
+  item {
+  $$.item = move($item);
+  $$.isRepeated = false;
+}
+| item "..." {
+  $$.item = move($item);
+  $$.isRepeated = true;
+}
 
-item: symbol | optional | group
+item:
+  symbol {
+  $$ = move($symbol);
+}
+| optional {
+  $$ = move($optional);
+}
+| group {
+  $$ = move($group);
+}
 
-optional: "[" alternative "]"
+optional: "[" alternative "]" {
+  $$.concats = move($alternative.concats);
+}
 
-group: "{" alternative "}"
+group: "{" alternative "}" {
+  $$.concats = move($alternative.concats);
+}
 
-symbol: NONTERMINAL | TOKEN | LITERAL
+symbol:
+  NONTERMINAL {
+  $$ = move($NONTERMINAL);
+}
+| TOKEN {
+  $$ = move($TOKEN);
+}
+| LITERAL {
+  $$ = move($LITERAL);
+}
 
-header: %empty | header_lines
+header:
+  %empty {
+}
+| header_lines {
+  $$.lines = move($header_lines);
+}
 
-header_lines: HEADER_LINE | header_lines HEADER_LINE
+header_lines:
+  HEADER_LINE {
+  $$.push_back(move($HEADER_LINE));
+}
+| header_lines HEADER_LINE {
+  $$ = move($1);
+  $$.push_back(move($HEADER_LINE));
+}
 
 see_syntax_rules: "!!" "see syntax rules"
 
 // midrule action for postprocessing
 postprocess: %empty {
-  auto& b = bisonParam;
-  b.parseEndTime = steady_clock::now();
-  b.parseTimeTakenSec = b.parseEndTime - b.parseStartTime;
+  auto& [start, end, elapsed] = bisonParam.stats;
+  end = steady_clock::now();
+  elapsed = end - start;
 }
 
 %%
@@ -261,6 +373,7 @@ postprocess: %empty {
 #include <memory>
 #include <istream>
 #include <fstream>
+#include <print>
 
 #include "lexer/ebnf_lexer.h"
 #include "ebnf_parser.bison.h"
@@ -269,15 +382,15 @@ using namespace std;
 using namespace ebnfparser;
 
 void usage() {
-  puts("Usage: ebnfparse [-h | --help] [--debug] [file]");
-  puts("ebnfparse checks if file is valid extended EBNF as defined in Section 5.2 of the GQL ISO-39075:2024 standard");
-  puts("It prints nothing if the parse succeeds and the file is valid, otherwise it prints an error message with line numbers");
+  puts("Usage: ebnfparse [-h | --help] [--debug] [--stats] [file]");
+  puts("Parses valid EBNF as defined in Section 5.2 of the GQL ISO-39075:2024 standard");
+  puts("Prints nothing if parse succeeds, otherwise prints an error message with line number");
   puts("");
   puts("Options:");
   puts("--debug: turns on Bison parser and Flex lexer debug traces, off by default");
   puts("--stats: print timing stats on successful parse, off by default");
   puts("--help | -h: prints usage help");
-  puts("file: extended EBNF grammar file");
+  puts("file: EBNF grammar file, use stdin if no file or file is \"-\"");
 }
 
 int main(int argc, char* argv[])
@@ -319,19 +432,28 @@ int main(int argc, char* argv[])
 // switch input stream for lexer to read from file instead of default stdin
   ifstream fileStream;
   if(optind < argc) {
-    *inputFilename = argv[optind];
-    if(fileStream.open(*inputFilename); !fileStream) {
-      fprintf(stderr, "error opening file \"%s\"\n", inputFilename->c_str());
-      exit(1);
+    auto file = argv[optind];
+    if(file != "-"sv) {
+      if(fileStream.open(file); !fileStream) {
+        println(stderr, "error opening file \"{}\"", file);
+        exit(1);
+      }
     }
+    *inputFilename = file;
     lexer.switch_streams(&fileStream);
   }
 
   BisonParam bisonParam;
   LexParam lexParam{.loc = location(inputFilename.get())};
 
-  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
-    return lexer.yylex(lexParam);
+  duration<double> yylexSecs{};
+
+  EbnfParser parser([&lexer, &yylexSecs](LexParam& lexParam) -> EbnfParser::symbol_type {
+    time_point<steady_clock> start = steady_clock::now();
+    auto token = lexer.yylex(lexParam);
+    time_point<steady_clock> end = steady_clock::now();
+    yylexSecs += end - start;
+    return token;
   },
   bisonParam,
   lexParam);
@@ -345,7 +467,9 @@ int main(int argc, char* argv[])
   }
 
   if(printStats) {
-    printf("parse time: %.9f secs\n", bisonParam.parseTimeTakenSec.count());
+    const auto& [_, _, parseSecs] = bisonParam.stats;
+    println("parse time: {:.9f} secs", parseSecs.count());
+    println("lex_time {:.9f} sec", yylexSecs.count());
   }
 
   return 0;
