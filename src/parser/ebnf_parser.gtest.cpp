@@ -24,13 +24,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "lexer/ebnf_lexer.h"
+#include "ebnf_parser.bison.h"
+
 #include <sstream>
 #include <string>
 
 #include <gtest/gtest.h>
-
-#include "lexer/ebnf_lexer.h"
-#include "ebnf_parser.bison.h"
 
 using namespace std;
 
