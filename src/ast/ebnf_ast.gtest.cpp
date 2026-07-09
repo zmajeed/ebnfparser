@@ -1,9 +1,9 @@
-// ebnf_lexer.gtest.cpp
+// ebnf_ast.gtest.cpp
 
 /*
 MIT License
 
-Copyright (c) 2024.-2026 Zartaj Majeed
+Copyright (c) 2024-2026 Zartaj Majeed
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ebnf_lexer.h"
-#include "ebnf_parser.bison.h"
+#include "ebnf_ast.h"
 
-#include <iostream>
 #include <sstream>
 #include <string>
+#include <print>
 
 #include <gtest/gtest.h>
 
@@ -38,28 +37,36 @@ using namespace ::testing;
 
 namespace ebnfparser::testing {
 
-TEST(Lexer, test_0000) {
+TEST(Ast, test_000) {
 
-  stringstream s("<true literal>");
-  Lexer lexer(&s);
-  LexParam lexParam{};
+  Grammar g{
+    {
+      {"Header line 1\n"}
+    },
+    {
+      Rule{
+        "rule1",
+        {
+          Alternative{
+            {{
+              Concatenation{
+                {
+                  Repetition{
+                    false,
+                    "sym1"
+                  }
+                }
+              }
+           }}
+          }
+        }
+      }
+    }
+  };
 
-  auto token = lexer.yylex(lexParam);
-
-  EXPECT_EQ(token.kind(), EbnfParser::symbol_kind::S_NONTERMINAL);
+  AstNode{g}.printAst();
 }
 
-TEST(Lexer, test_0001) {
-
-  stringstream s("    <true literal>");
-  Lexer lexer(&s);
-  LexParam lexParam{};
-
-  auto token = lexer.yylex(lexParam);
-
-  EXPECT_EQ(token.kind(), EbnfParser::symbol_kind::S_NONTERMINAL);
-}
 
 }
-
 
