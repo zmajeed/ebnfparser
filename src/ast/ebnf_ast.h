@@ -104,73 +104,109 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
     visit(overload{
 
       [](this auto&& self, const Grammar& g) -> void {
-        println("grammar:");
         self(g.header);
-        println("{} rules:", g.rules.size());
-        for(auto& rule: g.rules) {
+        for(const auto& rule: g.rules) {
           self(rule);
+          println("\n");
         }
       },
 
       [](this auto&& self, const Rule& r) -> void {
-        println("rule:");
-        println("{}:", r.nonterminal);
-        for(auto& alt: r.alternatives) {
+        const auto& alts = r.alternatives;
+
+        print("{} ::=", r.nonterminal);
+        if(alts.empty()) {
+          return;
+        }
+        print(" ");
+        self(alts[0]);
+        for(int i = 1; i < ssize(alts); ++i) {
+          const auto& alt = alts[i];
+          print(" |");
           self(alt);
         }
       },
 
       [](this auto&& self, const Alternative& a) -> void {
-        println("alternative:");
-        for(auto& concat: a.concats) {
+        const auto& concats = a.concats;
+
+        if(concats.empty()) {
+          return;
+        }
+        self(concats[0]);
+        for(int i = 1; i < ssize(concats); ++i) {
+          const auto& concat = concats[i];
+          print(" |");
           self(concat);
         }
       },
 
       [](this auto&& self, const Group& g) -> void {
-        println("group:");
-        for(auto& concat: g.concats) {
+        const auto& concats = g.concats;
+
+        print("{{");
+
+        if(concats.empty()) {
+          return;
+        }
+        self(concats[0]);
+        for(int i = 1; i < ssize(concats); ++i) {
+          const auto& concat = concats[i];
+          print(" |");
           self(concat);
         }
+
+        print(" }}");
       },
 
       [](this auto&& self, const Optional& o) -> void {
-        println("optional:");
-        for(auto& concat: o.concats) {
+        const auto& concats = o.concats;
+
+        print("[");
+
+        if(concats.empty()) {
+          return;
+        }
+        self(concats[0]);
+        for(int i = 1; i < ssize(concats); ++i) {
+          const auto& concat = concats[i];
+          print(" |");
           self(concat);
         }
+
+        print(" ]");
       },
 
       [](this auto&& self, const Concatenation& c) -> void {
-        println("concatenation:");
-        for(auto& rep: c.reps) {
+        for(const auto& rep: c.reps) {
+          print(" ");
           self(rep);
         }
       },
 
       [](this auto&& self, const Repetition& r) -> void {
-        println("repetition:");
-        r.item.visit(self);
+        self(r.item);
+        if(r.isRepeated) {
+          print(" ...");
+        }
       },
 
       [](this auto&& self, const Item& i) -> void {
-        println("item: should never match");
         i.visit(self);
       },
 
       [](this auto&&, const Symbol& s) -> void {
-        println("symbol: {}", s);
+        print("{}", s);
       },
 
       [](this auto&&, const Header& h) -> void {
-        println("header:");
-        for(auto& line: h.lines) {
+        for(const auto& line: h.lines) {
           print("{}", line);
         }
       },
 
       [](this auto&&, const auto&) -> void {
-        println("default visit");
+        println("unexpected ast node");
       },
 
     });

@@ -1,0 +1,23 @@
+ebnf_gql_variant.txt
+
+This file contains a grammar for the extended BNF notation described in https://standards.iso.org/iso-iec/39075/ed-1/en/ISO_IEC_39075(en).bnf.xml and in Section 5.2 of ISO-39075:2024.
+
+<ebnf> ::= [ <header> ] <rules>
+
+<rules> ::= <rule> [ { RULE_SEP <rule> } ... ]
+
+<rule> ::= NONTERMINAL "::=" <alternative>
+
+<alternative> ::= <concatenation> [ { "|" <concatenation> } ... ]
+
+<concatenation> ::= <repetition> ...
+
+<repetition> ::= { <symbol> | <optional> | <group> } [ "..." ]
+
+<group> ::= "{" <alternative> "}"
+
+<optional> ::= "[" <alternative> "]"
+
+<symbol> ::= NONTERMINAL | TOKEN | LITERAL
+
+<header> ::= [ HEADER_LINE ... ]

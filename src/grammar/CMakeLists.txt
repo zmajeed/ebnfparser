@@ -9,7 +9,7 @@ find_package(BISON)
 flex_target(flex_files ebnf_lexer.flex.l ${CMAKE_CURRENT_BINARY_DIR}/ebnf_lexer.flex.cpp COMPILE_FLAGS -f)
 
 # generated source filename should match .y filename
-bison_target(bison_files ebnf_parser.bison.y ${CMAKE_CURRENT_BINARY_DIR}/ebnf_parser.bison.cpp COMPILE_FLAGS "-Wall -Wdangling-alias -Werror --report lookaheads,cex,solved --report-file ebnf_grammar_report.txt")
+bison_target(bison_files ebnf_parser.bison.y ${CMAKE_CURRENT_BINARY_DIR}/ebnf_parser.bison.cpp DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/ebnf_parser.bison.h COMPILE_FLAGS "-Wall -Wdangling-alias -Werror --report lookaheads,cex,solved --report-file ebnf_grammar_report.txt")
 
 add_flex_bison_dependency(flex_files bison_files)
 
