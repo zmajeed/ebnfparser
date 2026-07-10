@@ -20,6 +20,6 @@ add_subdirectory(ast)
 
 add_subdirectory(ebnf_convert)
 
-add_subdirectory(ebnftobison)
+#add_subdirectory(ebnftobison)
 
 enable_testing()

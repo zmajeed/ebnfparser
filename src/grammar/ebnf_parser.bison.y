@@ -389,14 +389,16 @@ void usage() {
 
 int main(int argc, char* argv[])
 {
-  bool debug{};
-  bool printStats{};
+  bool debug = false;
+  bool printStats = false;
+  bool printEbnf = false;
 
 // need filename pointer to stick around for bison error messages that print filename and position
   auto inputFilename = make_unique<string>("stdin");
 
   option opts[] = {
     {"debug", no_argument, (int*)&debug, 1},
+    {"print", no_argument, (int*)&printEbnf, 1},
     {"stats", no_argument, (int*)&printStats, 1},
     {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
@@ -455,6 +457,10 @@ int main(int argc, char* argv[])
   if(auto ev = parser(); ev != 0) {
     fputs("parse failed\n", stderr);
     return ev;
+  }
+
+  if(printEbnf) {
+    bisonParam.ast.printAst();
   }
 
   if(printStats) {

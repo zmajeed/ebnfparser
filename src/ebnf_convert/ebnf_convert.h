@@ -89,20 +89,20 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
         self(g.header);
         for(auto& rule: g.rules) {
           self(rule);
+          println("\n");
         }
       },
 
       [](this auto&& self, const BnfRule& r) -> void {
-        println("{}:", r.nterm);
+        print("{}:", r.nterm);
         for(int i = 0; i < ssize(r.choices); ++i) {
           self(r.choices[i]);
         }
-        println("");
       },
 
       [](this auto&& self, const BnfChoice& c) -> void {
         for(int i = 0; i < ssize(c.seqs); ++i) {
-          print("{}", i > 0? "| ": "  ");
+          print("{}", i > 0? "| ": " ");
           self(c.seqs[i]);
         }
       },
@@ -112,7 +112,6 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
           self(sym);
           print(" ");
         }
-        println("");
       },
 
       [](this auto&&, const BnfSymbol& s) -> void {
@@ -132,7 +131,7 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
       },
 
       [](this auto&&, const auto&) -> void {
-        println("unexpected bnf default visit");
+        println("unexpected bnf node");
       },
 
     });
@@ -298,6 +297,7 @@ struct EbnfConvert {
 
  // default match
       [](this auto&&, const auto&) -> BnfChoice {
+        println("unexpected ast node inside alternative");
         return {};
       },
     };
@@ -350,7 +350,7 @@ struct EbnfConvert {
       },
 
       [](this auto&&, const auto&) -> BnfNode {
-        println("unexpected convert ebnf default visit");
+        println("unexpected convert ebnf node");
         return {};
       },
     };
