@@ -131,6 +131,7 @@ TEST(ToyEbnfConvert, test_0003) {
 
   EbnfConvert ebnf;
   println("input ebnf:");
+  bisonParam.ast.printAst();
   auto bnf = ebnf.convert(bisonParam.ast);
   println("");
   println("converted bnf:");
@@ -139,28 +140,7 @@ TEST(ToyEbnfConvert, test_0003) {
 
 TEST(ToyEbnfConvert, test_0004) {
   stringstream s(R"%(
-<rule_1> ::= { <sym_1> <sym_2> }
-)%");
-  Lexer lexer(&s);
-  BisonParam bisonParam;
-  LexParam lexParam;
-
-  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
-    return lexer.yylex(lexParam);
-  },
-  bisonParam,
-  lexParam);
-
-  EXPECT_EQ(parser(), 0);
-
-  EbnfConvert ebnf;
-  auto bnf = ebnf.convert(bisonParam.ast);
-  bnf.printBnf();
-}
-
-TEST(ToyEbnfConvert, test_0005) {
-  stringstream s(R"%(
-<rule_1> ::= sym_1 { <sym_2> <sym_3> }
+<rule_1> ::= <sym_1> ... [ <sym_2> ... ]
 )%");
   Lexer lexer(&s);
   BisonParam bisonParam;
@@ -176,6 +156,210 @@ TEST(ToyEbnfConvert, test_0005) {
 
   EbnfConvert ebnf;
   println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0005) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_2> ... | <sym_1> ... [ <sym_2> ... ]
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0006) {
+  stringstream s(R"%(
+<rule_1> ::= { <sym_1> <sym_2> }
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  bisonParam.ast.printAst();
+  EbnfConvert ebnf;
+  auto bnf = ebnf.convert(bisonParam.ast);
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0007) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_1> { <sym_2> <sym_3> }
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0008) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_1> { <sym_2> <sym_3> } ...
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0009) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_1> [ { <sym_2> <sym_3> } ... ]
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0010) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_1> { <sym_2> | <sym_3> <sym_4> <sym_2> }
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0011) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_1> {
+    [ <sym_2> ] <sym_3> [ <sym_4> <sym_5> <sym_6> ]
+    | <sym_7> <sym_8> [ <sym_2> ] <sym_3>
+  }
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+}
+
+TEST(ToyEbnfConvert, test_0012) {
+  stringstream s(R"%(
+<rule_1> ::= <sym_1> {
+    [ <sym_2> ] <sym_3> [ <sym_4> <sym_5> <sym_6> ]
+    | <sym_7> <sym_8> [ <sym_2> ] <sym_3>
+  } <sym_9>
+)%");
+  Lexer lexer(&s);
+  BisonParam bisonParam;
+  LexParam lexParam;
+
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
+  },
+  bisonParam,
+  lexParam);
+
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  bisonParam.ast.printAst();
   auto bnf = ebnf.convert(bisonParam.ast);
   println("");
   println("converted bnf:");
@@ -222,6 +406,7 @@ TEST(EbnfConvert, test_0001) {
 
   EbnfConvert ebnf;
   println("input ebnf:");
+  bisonParam.ast.printAst();
   auto bnf = ebnf.convert(bisonParam.ast);
   println("");
   println("converted bnf:");
@@ -258,6 +443,7 @@ TEST(EbnfConvert, test_0002) {
 
   EbnfConvert ebnf;
   println("input ebnf:");
+  bisonParam.ast.printAst();
   auto bnf = ebnf.convert(bisonParam.ast);
   println("");
   println("converted bnf:");
@@ -458,25 +644,31 @@ TEST(EbnfConvert, test_0006) {
 #endif
 }
 
-#if 0
-TEST(EbnfToBison, test_6) {
-
+TEST(EbnfConvert, test_0007) {
   stringstream s(R"%(
 <session activity> ::=
   <session set command>... [ <session reset command>... ]
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -507,27 +699,35 @@ TEST(EbnfToBison, test_6) {
       }
     }
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_7) {
-
+TEST(EbnfConvert, test_0008) {
   stringstream s(R"%(
 <session activity> ::=
     <session reset command>...
   | <session set command>... [ <session reset command>... ]
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -559,26 +759,34 @@ TEST(EbnfToBison, test_7) {
       }
     }
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_8) {
-
+TEST(EbnfConvert, test_0009) {
   stringstream s(R"%(
 <transaction characteristics> ::=
     <transaction mode 1> { <comma> <transaction mode 2> }
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -592,26 +800,34 @@ TEST(EbnfToBison, test_8) {
       }
     },
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_9) {
-
+TEST(EbnfConvert, test_0010) {
   stringstream s(R"%(
 <transaction characteristics> ::=
     <transaction mode 1> { <comma> <transaction mode 2> }...
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -633,26 +849,34 @@ TEST(EbnfToBison, test_9) {
       }
     },
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_10) {
-
+TEST(EbnfConvert, test_0011) {
   stringstream s(R"%(
 <transaction characteristics> ::=
     <transaction mode 1> [ { <comma> <transaction mode 2> }... ]
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -675,27 +899,35 @@ TEST(EbnfToBison, test_10) {
       }
     },
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_11) {
-
+TEST(EbnfConvert, test_0012) {
   stringstream s(R"%(
 <create graph statement> ::=
     CREATE { GRAPH
   | OR REPLACE GRAPH }
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -710,27 +942,35 @@ TEST(EbnfToBison, test_11) {
       }
     },
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_12) {
-
+TEST(EbnfConvert, test_0013) {
   stringstream s(R"%(
 <create graph statement> ::=
     CREATE { [ PROPERTY ] GRAPH [ IF NOT EXISTS ]
   | OR REPLACE [ PROPERTY ] GRAPH }
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -743,35 +983,42 @@ TEST(EbnfToBison, test_12) {
         {"CREATE", "GRAPH"},
         {"CREATE", "PROPERTY", "GRAPH"},
         {"CREATE", "GRAPH", "IF", "NOT", "EXISTS"},
-        {"CREATE", "PROPERTY", "GRAPH"},
         {"CREATE", "PROPERTY", "GRAPH", "IF", "NOT", "EXISTS"},
         {"CREATE", "OR", "REPLACE", "GRAPH"},
         {"CREATE", "OR", "REPLACE", "PROPERTY", "GRAPH"},
       }
     },
   }) ));
+#endif
 }
 
-TEST(EbnfToBison, test_13) {
-
+TEST(EbnfConvert, test_0014) {
   stringstream s(R"%(
 <create graph statement> ::=
     CREATE { [ PROPERTY ] GRAPH [ IF NOT EXISTS ]
   | OR REPLACE [ PROPERTY ] GRAPH }
          <catalog graph parent and name>
 )%");
-
   Lexer lexer(&s);
-
-  location loc{};
   BisonParam bisonParam;
+  LexParam lexParam;
 
-  EbnfToBison parser([&lexer](location& loc) -> EbnfToBison::symbol_type {
-    return lexer.yylex(loc);
+  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
+    return lexer.yylex(lexParam);
   },
   bisonParam,
-  loc);
+  lexParam);
 
+  EXPECT_EQ(parser(), 0);
+
+  EbnfConvert ebnf;
+  println("input ebnf:");
+  auto bnf = ebnf.convert(bisonParam.ast);
+  println("");
+  println("converted bnf:");
+  bnf.printBnf();
+
+#if 0
   auto& result = bisonParam.result;
 
   EXPECT_EQ(parser(), 0);
@@ -784,15 +1031,16 @@ TEST(EbnfToBison, test_13) {
         {"CREATE", "GRAPH", "catalog_graph_parent_and_name"},
         {"CREATE", "PROPERTY", "GRAPH", "catalog_graph_parent_and_name"},
         {"CREATE", "GRAPH", "IF", "NOT", "EXISTS", "catalog_graph_parent_and_name"},
-        {"CREATE", "PROPERTY", "GRAPH", "catalog_graph_parent_and_name"},
         {"CREATE", "PROPERTY", "GRAPH", "IF", "NOT", "EXISTS", "catalog_graph_parent_and_name"},
         {"CREATE", "OR", "REPLACE", "GRAPH", "catalog_graph_parent_and_name"},
         {"CREATE", "OR", "REPLACE", "PROPERTY", "GRAPH", "catalog_graph_parent_and_name"},
       }
     },
   }) ));
+#endif
 }
 
+#if 0
 TEST(EbnfToBison, test_14) {
 
   stringstream s(R"%(

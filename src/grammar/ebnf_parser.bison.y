@@ -167,12 +167,16 @@ using namespace std;
 #include <vector>
 #include <set>
 #include <map>
+#include <utility>
+#include <algorithm>
 #include <chrono>
 #include <print>
+#include <ranges>
 
 #include "ast/ebnf_ast.h"
 
 using namespace std;
+using views::as_rvalue;
 
 namespace {
   const auto defaultInputName = "inputstream"s;
@@ -266,7 +270,7 @@ rules: rule {
 
 rule: NONTERMINAL "::=" rhs {
   $$.nonterminal = move($NONTERMINAL);
-  $$.alternatives = move($rhs);
+  $$.alts.insert_range(as_rvalue($rhs));
 }
 
 rhs: alternative {
@@ -279,11 +283,11 @@ rhs: alternative {
 }
 
 alternative: concatenation {
-  $$.concats.push_back(move($concatenation));
+  $$.concats.emplace($concatenation);
 }
 | alternative "|" concatenation {
   $$ = move($1);
-  $$.concats.push_back(move($concatenation));
+  $$.concats.emplace($concatenation);
 }
 
 concatenation: repetition {
