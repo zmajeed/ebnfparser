@@ -158,7 +158,6 @@ struct EbnfConvert {
     auto altOverload = overload{
 
 // group
-#if 1
       [&newRules, &groupNum](this auto&& self, const Group& g) -> BnfChoice {
         vector<BnfSequence> seqs;
         for(auto& concat: g.concats) {
@@ -167,34 +166,6 @@ struct EbnfConvert {
         }
         return { seqs };
       },
-#else
-      [&newRules, &groupNum](this auto&& self, const Group& g) -> BnfChoice {
-        vector<BnfSequence> seqs;
-        for(auto& concat: g.concats) {
-          auto choice = self(concat);
-          seqs.append_range(choice.seqs);
-        }
-// replace group by generated group name in original ebnf rule
-// move group to rhs of new rule for generated group name
-        string groupName = format("group_{}", groupNum++);
-        BnfRule groupRule{
-          groupName,
-          {
-            BnfChoice{
-              seqs
-            }
-          }
-        };
-        newRules.push_back(groupRule);
-
-        BnfSequence groupRef{
-          {
-            groupName
-          }
-        };
-        return { { groupRef } };
-      },
-#endif
 
 // optional
       [&newRules](this auto&& self, const Optional& o) -> BnfChoice {

@@ -7,19 +7,19 @@ ebnf: header | header rules
 
 rules: rule | rules RULE_SEP rule
 
-rule: NONTERMINAL "::=" alternative
+rule: NONTERMINAL DOUBLE_COLON_EQUAL alternative
 
-alternative: concatenation | alternative "|" concatenation
+alternative: concatenation | alternative BAR concatenation
 
 concatenation: repetition | concatenation repetition
 
-repetition: item | item "..."
+repetition: item | item THREE_DOTS
 
 item: symbol | optional | group
 
-optional: "[" alternative "]"
+optional: LEFT_BRACKET alternative RIGHT_BRACKET
 
-group: "{" alternative "}"
+group: LEFT_BRACE alternative RIGHT_BRACE
 
 symbol: NONTERMINAL | TOKEN | LITERAL
 
@@ -46,24 +46,24 @@ alternative: concatenation | alternative "|" concatenation
 
 The three dots `...` repetition operator means repeat 1 or more times, not zero or more times like repetition in other EBNF variants. Use both optional and repetition operators to represent zero or more repetitions.
 
-Here's the EBNF version of the the BNF grammar above - this is really meta and recursive but it's a good short example of the syntax - you just need to keep the literals for the grammar operators like `"..."` and the operators themselves like `...` straight.
+Here's the EBNF version of the the BNF grammar above - it's a bit meta-recursive but a good short example of the syntax - you just need to keep the literal tokens for the grammar operators like THREE_DOTS for `"..."` and the operators themselves like `...` straight.
 
 ```ebnf
 <ebnf> ::= [ <header> ] <rules>
 
 <rules> ::= <rule> [ { RULE_SEP <rule> } ... ]
 
-<rule> ::= NONTERMINAL "::=" <alternative>
+<rule> ::= NONTERMINAL DOUBLE_COLON_EQUAL <alternative>
 
-<alternative> ::= <concatenation> [ { "|" <concatenation> } ... ]
+<alternative> ::= <concatenation> [ { BAR <concatenation> } ... ]
 
 <concatenation> ::= <repetition> ...
 
-<repetition> ::= { <symbol> | <optional> | <group> } [ "..." ]
+<repetition> ::= { <symbol> | <optional> | <group> } [ THREE_DOTS ]
 
-<group> ::= "{" <alternative> "}"
+<group> ::= LEFT_BRACE <alternative> RIGHT_BRACE
 
-<optional> ::= "[" <alternative> "]"
+<optional> ::= LEFT_BRACKET <alternative> RIGHT_BRACKET
 
 <symbol> ::= NONTERMINAL | TOKEN | LITERAL
 

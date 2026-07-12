@@ -100,7 +100,7 @@ struct Item: variant<Symbol, Optional, Group> {
   using variant::variant;
 
   strong_ordering operator<=>(const Item& other) const;
-  bool operator==(const Item& other) const;
+  bool operator==(const Item& other) const = default;
 
 private:
   template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
@@ -113,7 +113,6 @@ struct Repetition {
   strong_ordering operator<=>(const Repetition& other) const = default;
 };
 
-
 inline
 strong_ordering Item::operator<=>(const Item& other) const {
 
@@ -125,48 +124,24 @@ strong_ordering Item::operator<=>(const Item& other) const {
 // cannot pass second parameter to lambda overloads
   return visit(overload{
 
-    [&other](const Symbol& s1) {
+    [&other](const Symbol& s1) -> strong_ordering {
       const auto& s2 = get<Symbol>(other);
       return s1 <=> s2;
     },
 
-    [&other](const Optional& o1) {
+    [&other](const Optional& o1) -> strong_ordering {
       const auto& o2 = get<Optional>(other);
       return o1 <=> o2;
     },
 
-    [&other](const Group& g1) {
+    [&other](const Group& g1) -> strong_ordering {
       const auto& g2 = get<Group>(other);
       return g1 <=> g2;
     },
 
-  });
-}
-
-inline
-bool Item::operator==(const Item& other) const {
-
-  if(index() != other.index()) {
-    return false;
-  }
-
-// capture other because visit only takes overload as parameter
-// cannot pass second parameter to lambda overloads
-  return visit(overload{
-
-    [&other](const Symbol& s1) {
-      const auto& s2 = get<Symbol>(other);
-      return s1 == s2;
-    },
-
-    [&other](const Optional& o1) {
-      const auto& o2 = get<Optional>(other);
-      return o1 == o2;
-    },
-
-    [&other](const Group& g1) {
-      const auto& g2 = get<Group>(other);
-      return g1 == g2;
+    [](const auto&) -> strong_ordering {
+      println("Item.spaceship: unexpected Item type");
+      return {{}};
     },
 
   });
@@ -283,7 +258,7 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
       },
 
       [](this auto&&, const auto&) -> void {
-        println("unexpected ast node");
+        println("printAst: unexpected ast node");
       },
 
     });
