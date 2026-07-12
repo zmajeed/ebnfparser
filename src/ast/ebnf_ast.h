@@ -29,10 +29,14 @@ SOFTWARE.
 #include <string>
 #include <vector>
 #include <set>
+#include <flat_set>
 #include <map>
+#include <variant>
+#include <compare>
+#include <utility>
+#include <algorithm>
 #include <memory>
 #include <functional>
-#include <variant>
 #include <print>
 
 namespace ebnfparser {
@@ -43,10 +47,12 @@ struct Header;
 struct Rule;
 struct Item;
 struct Repetition;
+struct AltBase;
 struct Alternative;
 struct Concatenation;
 struct Optional;
 struct Group;
+struct CompareAlt;
 
 using Symbol = string;
 using Nonterminal = Symbol;
@@ -57,22 +63,28 @@ struct Header {
   vector<string> lines{};
 };
 
-struct Rule {
-  string nonterminal{};
-  vector<Alternative> alternatives;
-};
-
 struct Grammar {
   Header header{};
   vector<Rule> rules{};
 };
 
+struct Rule {
+  string nonterminal{};
+// hopefully flat_set is fast enough for iterative applications like convert to bnf that doesn't need lookup
+// could go back to vector<Alternative>
+  flat_set<Alternative> alts{};
+};
+
 struct Concatenation {
   vector<Repetition> reps{};
+
+  strong_ordering operator<=>(const Concatenation& other) const = default;
 };
 
 struct AltBase {
-  vector<Concatenation> concats{};
+  flat_set<Concatenation> concats{};
+
+  strong_ordering operator<=>(const AltBase& other) const = default;
 };
 
 struct Alternative: public AltBase {
@@ -86,18 +98,83 @@ struct Group: public AltBase {
 
 struct Item: variant<Symbol, Optional, Group> {
   using variant::variant;
+
+  strong_ordering operator<=>(const Item& other) const;
+  bool operator==(const Item& other) const;
+
+private:
+  template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 };
 
 struct Repetition { 
   bool isRepeated = false;
   Item item{};
+
+  strong_ordering operator<=>(const Repetition& other) const = default;
 };
+
+
+inline
+strong_ordering Item::operator<=>(const Item& other) const {
+
+  if(index() != other.index()) {
+    return index() <=> other.index();
+  }
+
+// capture other because visit only takes overload as parameter
+// cannot pass second parameter to lambda overloads
+  return visit(overload{
+
+    [&other](const Symbol& s1) {
+      const auto& s2 = get<Symbol>(other);
+      return s1 <=> s2;
+    },
+
+    [&other](const Optional& o1) {
+      const auto& o2 = get<Optional>(other);
+      return o1 <=> o2;
+    },
+
+    [&other](const Group& g1) {
+      const auto& g2 = get<Group>(other);
+      return g1 <=> g2;
+    },
+
+  });
+}
+
+inline
+bool Item::operator==(const Item& other) const {
+
+  if(index() != other.index()) {
+    return false;
+  }
+
+// capture other because visit only takes overload as parameter
+// cannot pass second parameter to lambda overloads
+  return visit(overload{
+
+    [&other](const Symbol& s1) {
+      const auto& s2 = get<Symbol>(other);
+      return s1 == s2;
+    },
+
+    [&other](const Optional& o1) {
+      const auto& o2 = get<Optional>(other);
+      return o1 == o2;
+    },
+
+    [&other](const Group& g1) {
+      const auto& g2 = get<Group>(other);
+      return g1 == g2;
+    },
+
+  });
+}
 
 
 struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repetition, Optional, Item, Symbol, Group> {
   using variant::variant;
-
-  template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
 
   void printAst() const {
 
@@ -112,16 +189,16 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
       },
 
       [](this auto&& self, const Rule& r) -> void {
-        const auto& alts = r.alternatives;
+        const auto& alts = r.alts;
 
         print("{} ::=", r.nonterminal);
         if(alts.empty()) {
           return;
         }
         print(" ");
-        self(alts[0]);
+        self(alts.begin()[0]);
         for(int i = 1; i < ssize(alts); ++i) {
-          const auto& alt = alts[i];
+          const auto& alt = alts.begin()[i];
           print(" |");
           self(alt);
         }
@@ -133,9 +210,9 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         if(concats.empty()) {
           return;
         }
-        self(concats[0]);
+        self(concats.begin()[0]);
         for(int i = 1; i < ssize(concats); ++i) {
-          const auto& concat = concats[i];
+          const auto& concat = concats.begin()[i];
           print(" |");
           self(concat);
         }
@@ -149,9 +226,9 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         if(concats.empty()) {
           return;
         }
-        self(concats[0]);
+        self(concats.begin()[0]);
         for(int i = 1; i < ssize(concats); ++i) {
-          const auto& concat = concats[i];
+          const auto& concat = concats.begin()[i];
           print(" |");
           self(concat);
         }
@@ -167,9 +244,9 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         if(concats.empty()) {
           return;
         }
-        self(concats[0]);
+        self(concats.begin()[0]);
         for(int i = 1; i < ssize(concats); ++i) {
-          const auto& concat = concats[i];
+          const auto& concat = concats.begin()[i];
           print(" |");
           self(concat);
         }
@@ -211,6 +288,9 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
 
     });
   }
+
+private:
+  template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
 
 };
 

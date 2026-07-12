@@ -96,6 +96,7 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
       [](this auto&& self, const BnfRule& r) -> void {
         print("{}:", r.nterm);
         for(int i = 0; i < ssize(r.choices); ++i) {
+          print("{}", i > 0? "| ": " ");
           self(r.choices[i]);
         }
       },
@@ -157,6 +158,16 @@ struct EbnfConvert {
     auto altOverload = overload{
 
 // group
+#if 1
+      [&newRules, &groupNum](this auto&& self, const Group& g) -> BnfChoice {
+        vector<BnfSequence> seqs;
+        for(auto& concat: g.concats) {
+          auto choice = self(concat);
+          seqs.append_range(choice.seqs);
+        }
+        return { seqs };
+      },
+#else
       [&newRules, &groupNum](this auto&& self, const Group& g) -> BnfChoice {
         vector<BnfSequence> seqs;
         for(auto& concat: g.concats) {
@@ -183,6 +194,7 @@ struct EbnfConvert {
         };
         return { { groupRef } };
       },
+#endif
 
 // optional
       [&newRules](this auto&& self, const Optional& o) -> BnfChoice {
@@ -214,12 +226,12 @@ struct EbnfConvert {
             for(int k = 0; k < ssize(seqs); ++k) {
               joinedSyms.clear();
 // drop %empty for any join
-              if(seqs[k].syms[0] == "%empty") {
+              if(seqs[k].syms[0] == "%empty" && seqs[k].syms.size() > 1) {
                 joinedSyms.append_range(ranges::subrange(seqs[k].syms.begin() + 1, seqs[k].syms.end()));
               } else {
                 joinedSyms.append_range(seqs[k].syms);
               }
-              if(repSeqs[j].syms[0] == "%empty") {
+              if(repSeqs[j].syms[0] == "%empty" && repSeqs[j].syms.size() > 1) {
                 joinedSyms.append_range(ranges::subrange(repSeqs[j].syms.begin() + 1, repSeqs[j].syms.end()));
               } else {
                 joinedSyms.append_range(repSeqs[j].syms);
@@ -318,7 +330,7 @@ struct EbnfConvert {
       [](this auto&& self, const Rule& r) -> BnfNode {
         auto nterm = regex_replace(r.nonterminal.substr(1, r.nonterminal.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
         vector<BnfChoice> choices;
-        for(auto& alt: r.alternatives) {
+        for(auto& alt: r.alts) {
           choices.push_back(get<BnfChoice>(self(alt)));
         }
         return BnfRule{nterm, choices};
