@@ -73,6 +73,12 @@ SOFTWARE.
 
 #include "ast/ebnf_ast.h"
 
+#ifdef _MSC_VER
+#pragma warning(push)
+// disable vc++ warning C4065, switch statement contains default but no case labels in code generated for basic_symbol::clear() in .h file
+#pragma warning(disable: 4065)
+#endif
+
 namespace ebnfparser {
 
 using namespace std;
@@ -143,6 +149,10 @@ struct std::formatter<ebnfparser::location> {
 %code provides {
 // %code provides codeblock goes in .h after namespace and parser class
 // everything here needs EbnfParser defined earlier
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 // parser objects
 namespace ebnfparser {

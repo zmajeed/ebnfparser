@@ -63,14 +63,27 @@ SOFTWARE.
 %x RULE_START
 %x BANG_BANG
 
- // top of generated .cpp file
-%{
+%top{
+// top of generated .cpp file
+
+#include <stdint.h>
+#ifdef _WIN32
+#  undef INT8_MIN
+#endif
 
 #include <string>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+// disable vc++ warning C4244, return conversion from streamsize to int possible loss of data, in yyFlexLexer::LexerInput() in .cpp file
+#pragma warning(disable: 4244)
+#endif
+
+}
+
+%{
 // bison generated header with C++ namespace and token definitions
 #include "ebnf_parser.bison.h"
-
 #include "lexer/ebnf_lexer.h"
 
 #undef YY_DECL
@@ -225,8 +238,14 @@ using symbol_type = EbnfParser::symbol_type;
 }
 
  /* all input must be consumed in every state to prevent flex scanner jammed error */
-<*>. {
+<*>.|\n {
   loc.columns(yyleng);
   throw EbnfParser::syntax_error(loc, "bad input \""s + yytext + "\""s);
 }
+
+%%
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 

@@ -1,6 +1,6 @@
 # A Grammar and Parser for EBNF
 
-This Bison BNF grammar was written to parse the extended BNF notation used to specify the GQL Graph Query Language in the ISO-39075:2024 standard.
+I wrote this Bison BNF grammar to parse the extended BNF notation used to specify the GQL Graph Query Language in the ISO-39075:2024 standard.
 
 ```bison
 ebnf: header | header rules
@@ -28,7 +28,7 @@ header: %empty | header_lines
 header_lines: HEADER_LINE | header_lines HEADER_LINE
 ```
 
-The complete grammar is at [`src/grammar/ebnf_parser.rules.bison.y`](src/grammar/ebnf_parser.rules.bison.y).
+The complete grammar is at [`src/grammar/ebnf_parser.rules.bison.y`](src/grammar/ebnf_parser.rules.bison.y). There are no shift-reduce or reduce-reduce conflicts. The Bison grammar report file is also checked in at [`src/grammar/ebnf_grammar_report.txt`](src/grammar/ebnf_grammar_report.txt).
 
 The grammar allows freeform text before the first rule that may be considered a header section of sorts.
 
@@ -248,7 +248,7 @@ And how their types are used in Bison
 
 Each Bison symbol and token maps to its obvious value type. The only exception is the EBNF `symbol` element which maps to `string` instead of `Symbol` due to a Bison limitation on mixing typedefs and underlying types. We choose to use `string` instead of `Symbol` because it's a basic and commonly needed type. We could eliminate the conflict by making `Symbol` a first-class type instead of a typedef - but it seems an unnecessary complication.
 
-Another huge benefit of POD structures for senantic values is it separates the need for simple data containers at parse time while the AST is being constructed from complex transformations that need to traverse the fully-constructed AST later.
+Another huge benefit of POD structures for semantic values is it separates the need for simple data containers at parse time while the AST is being constructed from complex transformations that need to traverse the fully-constructed AST later.
 
 Transformations that traverse the AST are done through a `variant` for all the nodes of the AST
 
