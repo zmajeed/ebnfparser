@@ -85,7 +85,7 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
 
     visit(overload{
 
-      [](this auto&& self, const BnfGrammar& g) -> void {
+      [](this const auto& self, const BnfGrammar& g) -> void {
         self(g.header);
         for(auto& rule: g.rules) {
           self(rule);
@@ -93,7 +93,7 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
         }
       },
 
-      [](this auto&& self, const BnfRule& r) -> void {
+      [](this const auto& self, const BnfRule& r) -> void {
         print("{}:", r.nterm);
         for(int i = 0; i < ssize(r.choices); ++i) {
           print("{}", i > 0? "| ": " ");
@@ -101,25 +101,25 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
         }
       },
 
-      [](this auto&& self, const BnfChoice& c) -> void {
+      [](this const auto& self, const BnfChoice& c) -> void {
         for(int i = 0; i < ssize(c.seqs); ++i) {
           print("{}", i > 0? "| ": " ");
           self(c.seqs[i]);
         }
       },
 
-      [](this auto&& self, const BnfSequence& s) -> void {
+      [](this const auto& self, const BnfSequence& s) -> void {
         for(auto& sym: s.syms) {
           self(sym);
           print(" ");
         }
       },
 
-      [](this auto&&, const BnfSymbol& s) -> void {
+      [](this const auto&, const BnfSymbol& s) -> void {
         print("{}", s);
       },
 
-      [](this auto&&, const BnfHeader& h) -> void {
+      [](this const auto&, const BnfHeader& h) -> void {
         if(h.isWhitespace) {
           return;
         }
@@ -134,8 +134,11 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
       [](this auto&&, const auto&) -> void {
         println("unexpected bnf node");
       },
-
+#if __cpp_lib_variant >= 202306L
     });
+#else
+    }, *this);
+#endif
   }
 
 private:
@@ -265,7 +268,11 @@ struct EbnfConvert {
 
 // item
       [](this auto&& self, const Item& i) -> BnfChoice {
+#if __cpp_lib_variant >= 202306L
         return i.visit(self);
+#else
+        return visit(self, i);
+#endif
       },
 
 // symbol
@@ -288,7 +295,7 @@ struct EbnfConvert {
 
     auto ebnfOverload = overload{
 // grammar
-      [&newRules](this auto&& self, const Grammar& g) -> BnfNode {
+      [&newRules](this const auto& self, const Grammar& g) -> BnfNode {
         BnfHeader header = get<BnfHeader>(self(g.header));
         vector<BnfRule> rules;
         for(auto& rule: g.rules) {
@@ -298,7 +305,7 @@ struct EbnfConvert {
       },
 
 // rule
-      [](this auto&& self, const Rule& r) -> BnfNode {
+      [](this const auto& self, const Rule& r) -> BnfNode {
         auto nterm = regex_replace(r.nonterminal.substr(1, r.nonterminal.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
         vector<BnfChoice> choices;
         for(auto& alt: r.alts) {
@@ -308,7 +315,7 @@ struct EbnfConvert {
       },
 
 // alternative
-      [altOverload](this auto&& self, const Alternative& a) -> BnfNode {
+      [altOverload](this const auto& self, const Alternative& a) -> BnfNode {
         vector<BnfSequence> seqs;
         for(auto& concat: a.concats) {
           auto newChoice = altOverload(concat);
@@ -318,7 +325,7 @@ struct EbnfConvert {
       },
 
 // header
-      [](this auto&&, const Header& h) -> BnfNode {
+      [](this const auto&, const Header& h) -> BnfNode {
         bool isWhitespace = true;
         for(const auto& line: h.lines) {
           if(regex_search(line, regex{"\\S"})) {
@@ -338,7 +345,11 @@ struct EbnfConvert {
       },
     };
 
+#if __cpp_lib_variant >= 202306L
     auto result = ebnf.visit(ebnfOverload);
+#else
+    auto result = visit(ebnfOverload, ebnf);
+#endif
     BnfGrammar bnf = get<BnfGrammar>(result);
     bnf.rules.append_range(newRules);
 

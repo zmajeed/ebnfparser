@@ -143,19 +143,27 @@ strong_ordering Item::operator<=>(const Item& other) const {
       println("Item.spaceship: unexpected Item type");
       return {{}};
     },
-
-  });
+  }
+#if __cpp_lib_variant < 202306L
+  , *this
+#endif
+  );
 }
 
 
 struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repetition, Optional, Item, Symbol, Group> {
   using variant::variant;
 
+// delicate balance here due to funny business between gcc and vc++ that might go away once vc++ supports c++26 varaint visit member function
+// the problem is vc++ doesn't like this auto&& here, has to be this const auto& or this const auto&&
+// except for default match that must be this auto&&
+// on the other hand, gcc is fine with this auto&& but doesn't like this const auto&&
+// so this const auto& self it is, except in default match
   void printAst() const {
 
     visit(overload{
 
-      [](this auto&& self, const Grammar& g) -> void {
+      [](this const auto& self, const Grammar& g) -> void {
         self(g.header);
         for(const auto& rule: g.rules) {
           self(rule);
@@ -163,7 +171,7 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         }
       },
 
-      [](this auto&& self, const Rule& r) -> void {
+      [](this const auto& self, const Rule& r) -> void {
         const auto& alts = r.alts;
 
         print("{} ::=", r.nonterminal);
@@ -179,7 +187,7 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         }
       },
 
-      [](this auto&& self, const Alternative& a) -> void {
+      [](this const auto& self, const Alternative& a) -> void {
         const auto& concats = a.concats;
 
         if(concats.empty()) {
@@ -193,7 +201,7 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         }
       },
 
-      [](this auto&& self, const Group& g) -> void {
+      [](this const auto& self, const Group& g) -> void {
         const auto& concats = g.concats;
 
         print("{{");
@@ -211,7 +219,7 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         print(" }}");
       },
 
-      [](this auto&& self, const Optional& o) -> void {
+      [](this const auto& self, const Optional& o) -> void {
         const auto& concats = o.concats;
 
         print("[");
@@ -229,29 +237,33 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         print(" ]");
       },
 
-      [](this auto&& self, const Concatenation& c) -> void {
+      [](this const auto& self, const Concatenation& c) -> void {
         for(const auto& rep: c.reps) {
           print(" ");
           self(rep);
         }
       },
 
-      [](this auto&& self, const Repetition& r) -> void {
+      [](this const auto& self, const Repetition& r) -> void {
         self(r.item);
         if(r.isRepeated) {
           print(" ...");
         }
       },
 
-      [](this auto&& self, const Item& i) -> void {
+      [](this const auto& self, const Item& i) -> void {
+#if __cpp_lib_variant >= 202306L
         i.visit(self);
+#else
+        visit(self, i);
+#endif
       },
 
-      [](this auto&&, const Symbol& s) -> void {
+      [](this const auto&, const Symbol& s) -> void {
         print("{}", s);
       },
 
-      [](this auto&&, const Header& h) -> void {
+      [](this const auto&, const Header& h) -> void {
         for(const auto& line: h.lines) {
           print("{}", line);
         }
@@ -261,11 +273,16 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
         println("printAst: unexpected ast node");
       },
 
+#if __cpp_lib_variant >= 202306L
     });
+#else
+    }, *this);
+#endif
   }
 
 private:
   template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
+  
 
 };
 
