@@ -478,7 +478,7 @@ int main(int argc, char* argv[])
   }
 
   if(printStats) {
-    const auto& [_, _, parseSec] = bisonParam.stats;
+    const auto& [_, __, parseSec] = bisonParam.stats;
     println("parse time: {:.9f} sec", parseSec.count());
     println("lex_time {:.9f} sec", yylexSec.count());
   }

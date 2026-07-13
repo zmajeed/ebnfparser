@@ -16,8 +16,6 @@ target_compile_options(ebnf_lexer.gtest PRIVATE
     $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
 )
 
-target_include_directories(ebnf_lexer.gtest PRIVATE $<$<CXX_COMPILER_ID:MSVC>: ${CMAKE_CURRENT_SOURCE_DIR}/../winflexheaders>)
-
 target_link_libraries(ebnf_lexer.gtest flexbisonlib.ebnfparser gmock_main)
 
 enable_testing()

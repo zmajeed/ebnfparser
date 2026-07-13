@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 4.2)
 
 project(ebnfparser)
 
+add_subdirectory(thirdparty)
 add_subdirectory(src)
 
 enable_testing()
