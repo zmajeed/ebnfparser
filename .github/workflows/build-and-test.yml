@@ -1,0 +1,32 @@
+# github/workflows/build-and-test.yml
+
+# github actions config
+
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure CMake
+        run: cmake -B build -S .
+        
+      - name: Build
+        run: cmake --build build --config Release
+        
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure -C Release
