@@ -2,10 +2,8 @@
 
 project(ebnfparser_bison)
 
-# standalone parser executable with -DBUILD_BISON_MAIN
-add_executable(ebnfparse ${EBNF_PARSER_BISON_CPP_FILE})
+add_executable(ebnfparse ebnf_parser.cpp)
 
-target_compile_definitions(ebnfparse PRIVATE BUILD_BISON_MAIN)
 target_compile_definitions(ebnfparse PRIVATE $<$<PLATFORM_ID:CYGWIN>: GTEST_HAS_PTHREAD=1 _POSIX_C_SOURCE=200809L _GNU_SOURCE>)
 
 target_compile_options(ebnfparse PRIVATE

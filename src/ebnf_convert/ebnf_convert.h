@@ -26,14 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ast/ebnf_ast.h"
-
 #include <string>
 #include <vector>
 #include <map>
 #include <set>
 #include <regex>
 #include <ranges>
+#include <memory>
+
+#include "ast/ebnf_ast.h"
 
 namespace ebnfconvert {
 using namespace std;
@@ -65,7 +66,7 @@ struct BnfGrammar {
 
 struct BnfRule {
   string nterm{};
-  vector<BnfChoice> choices;
+  vector<BnfChoice> choices{};
 };
 
 // BnfSequence is sequence of BnfSymbol
@@ -81,65 +82,7 @@ struct BnfChoice {
 struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, BnfSymbol> {
   using variant::variant;
 
-  void printBnf() const {
-
-    visit(overload{
-
-      [](this const auto& self, const BnfGrammar& g) -> void {
-        self(g.header);
-        for(auto& rule: g.rules) {
-          self(rule);
-          println("\n");
-        }
-      },
-
-      [](this const auto& self, const BnfRule& r) -> void {
-        print("{}:", r.nterm);
-        for(int i = 0; i < ssize(r.choices); ++i) {
-          print("{}", i > 0? "| ": " ");
-          self(r.choices[i]);
-        }
-      },
-
-      [](this const auto& self, const BnfChoice& c) -> void {
-        for(int i = 0; i < ssize(c.seqs); ++i) {
-          print("{}", i > 0? "| ": " ");
-          self(c.seqs[i]);
-        }
-      },
-
-      [](this const auto& self, const BnfSequence& s) -> void {
-        for(auto& sym: s.syms) {
-          self(sym);
-          print(" ");
-        }
-      },
-
-      [](this const auto&, const BnfSymbol& s) -> void {
-        print("{}", s);
-      },
-
-      [](this const auto&, const BnfHeader& h) -> void {
-        if(h.isWhitespace) {
-          return;
-        }
-        println("/*");
-        for(auto& line: h.lines) {
-          print("{}", line);
-        }
-        println("*/");
-        println("");
-      },
-
-      [](this auto&&, const auto&) -> void {
-        println("unexpected bnf node");
-      },
-#if __cpp_lib_variant >= 202306L
-    });
-#else
-    }, *this);
-#endif
-  }
+  void printBnf() const;
 
 private:
   template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
@@ -148,219 +91,526 @@ private:
 
 struct EbnfConvert {
 
+// these started out as local variables in convert but got segv in vc++ with nested visit overload lambdas
+// it seems local captures in nested overload that is itself captured by outer overload end up pointing to invalid memory when inner overload actually runs
+// will need time-consuming debugging and investigation to check if it's a vc++ bug or undefined behavior that happens to work in gcc
+// difference might go away when vc++ implements c++26 variant visit member function
+
   uint64_t numRulesParsed = 0;
   uint64_t numRulesGenerated = 0;
+  int groupNum = 0;
+  int listNum = 0;
+  vector<BnfRule> newRules{};
 
-  BnfNode convert(const AstNode& ebnf) const {
+  BnfNode convert(const AstNode& ebnf);
 
-    int groupNum = 0;
-    int listNum = 0;
-    vector<BnfRule> newRules;
+private:
+  template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
+
+};
+
+// new c++26 variant visit member function, takes 1 parameter
+#if __cpp_lib_variant >= 202306L
+
+inline
+void BnfNode::printBnf() const {
+
+  visit(overload{
+
+    [](this auto&& self, const BnfGrammar& g) -> void {
+      self(g.header);
+      for(auto& rule: g.rules) {
+        self(rule);
+        println("\n");
+      }
+    },
+
+    [](this auto&& self, const BnfRule& r) -> void {
+      print("{}:", r.nterm);
+      for(int i = 0; i < ssize(r.choices); ++i) {
+        print("{}", i > 0? "| ": " ");
+        self(r.choices[i]);
+      }
+    },
+
+    [](this auto&& self, const BnfChoice& c) -> void {
+      for(int i = 0; i < ssize(c.seqs); ++i) {
+        print("{}", i > 0? "| ": " ");
+        self(c.seqs[i]);
+      }
+    },
+
+    [](this auto&& self, const BnfSequence& s) -> void {
+      for(auto& sym: s.syms) {
+        self(sym);
+        print(" ");
+      }
+    },
+
+    [](this auto&&, const BnfSymbol& s) -> void {
+      print("{}", s);
+    },
+
+    [](this auto&&, const BnfHeader& h) -> void {
+      if(h.isWhitespace) {
+        return;
+      }
+      println("/*");
+      for(auto& line: h.lines) {
+        print("{}", line);
+      }
+      println("*/");
+      println("");
+    },
+
+// default match
+    [](this auto&&, const auto&) -> void {
+      println("printBnf: unexpected default match");
+    },
+  });
+}
+
+inline
+BnfNode EbnfConvert::convert(const AstNode& ebnf) {
 
 // visit ebnf nodes inside alternative
-    auto altOverload = overload{
+  auto altOverload = overload{
 
 // group
-      [&newRules, &groupNum](this auto&& self, const Group& g) -> BnfChoice {
-        vector<BnfSequence> seqs;
-        for(auto& concat: g.concats) {
-          auto choice = self(concat);
-          seqs.append_range(choice.seqs);
-        }
-        return { seqs };
-      },
+    //[&newRules, &groupNum](this auto&& self, const Group& g) -> BnfChoice {
+    [](this auto&& self, const Group& g) -> BnfChoice {
+      vector<BnfSequence> seqs;
+      for(auto& concat: g.concats) {
+        auto choice = self(concat);
+        seqs.append_range(choice.seqs);
+      }
+      return { seqs };
+    },
 
 // optional
-      [&newRules](this auto&& self, const Optional& o) -> BnfChoice {
-        vector<BnfSequence> seqs{ BnfSequence{{ BnfEmpty{"%empty"} }} };
-        for(auto& concat: o.concats) {
-          auto result = self(concat);
-          seqs.append_range(result.seqs);
-        }
-        return {seqs};
-      },
+    [](this auto&& self, const Optional& o) -> BnfChoice {
+      vector<BnfSequence> seqs{ BnfSequence{{ BnfEmpty{"%empty"} }} };
+      for(auto& concat: o.concats) {
+        auto result = self(concat);
+        seqs.append_range(result.seqs);
+      }
+      return { seqs };
+    },
 
 // concatenation
 // this is the hard part
 // each rep is one or more sequences
 // each sequence is one or more symbols, possibly %empty symbol
 // extend symbol sequences with symbols from each rep sequence
-      [](this auto&& self, const Concatenation& c) -> BnfChoice {
+    [](this auto&& self, const Concatenation& c) -> BnfChoice {
 
-        vector<BnfSequence> seqs;
+      vector<BnfSequence> seqs;
 
-        for(int i = 0; i < ssize(c.reps); ++i) {
-          const auto& rep = c.reps[i];
-          const auto& result = self(rep);
-          const auto& repSeqs = result.seqs;
+      for(int i = 0; i < ssize(c.reps); ++i) {
+        const auto& rep = c.reps[i];
+        const auto& result = self(rep);
+        const auto& repSeqs = result.seqs;
 
-          vector<BnfSequence> acc;
-          for(int j = 0; j < ssize(repSeqs); ++j) {
-            vector<BnfSymbol> joinedSyms;
-            for(int k = 0; k < ssize(seqs); ++k) {
-              joinedSyms.clear();
+        vector<BnfSequence> acc;
+        for(int j = 0; j < ssize(repSeqs); ++j) {
+          vector<BnfSymbol> joinedSyms;
+          for(int k = 0; k < ssize(seqs); ++k) {
+            joinedSyms.clear();
 // drop %empty for any join
-              if(seqs[k].syms[0] == "%empty" && seqs[k].syms.size() > 1) {
-                joinedSyms.append_range(ranges::subrange(seqs[k].syms.begin() + 1, seqs[k].syms.end()));
-              } else {
-                joinedSyms.append_range(seqs[k].syms);
-              }
-              if(repSeqs[j].syms[0] == "%empty" && repSeqs[j].syms.size() > 1) {
-                joinedSyms.append_range(ranges::subrange(repSeqs[j].syms.begin() + 1, repSeqs[j].syms.end()));
-              } else {
-                joinedSyms.append_range(repSeqs[j].syms);
-              }
-              acc.push_back(BnfSequence{joinedSyms});
+            if(seqs[k].syms[0] == "%empty" && seqs[k].syms.size() > 1) {
+              joinedSyms.append_range(ranges::subrange(seqs[k].syms.begin() + 1, seqs[k].syms.end()));
+            } else {
+              joinedSyms.append_range(seqs[k].syms);
             }
-            if(joinedSyms.empty()) {
-              acc.push_back(repSeqs[j]);
+            if(repSeqs[j].syms[0] == "%empty" && repSeqs[j].syms.size() > 1) {
+              joinedSyms.append_range(ranges::subrange(repSeqs[j].syms.begin() + 1, repSeqs[j].syms.end()));
+            } else {
+              joinedSyms.append_range(repSeqs[j].syms);
             }
-
+            acc.push_back(BnfSequence{joinedSyms});
           }
-// 
-          seqs = move(acc);
+          if(joinedSyms.empty()) {
+            acc.push_back(repSeqs[j]);
+          }
+
         }
-        return BnfChoice{seqs};
-      },
+        seqs = move(acc);
+      }
+      return { seqs };
+    },
 
 // repetition
-      [&newRules, &groupNum, &listNum](this auto&& self, const Repetition& r) -> BnfChoice {
-        auto result = self(r.item);
-        if(!r.isRepeated) {
-          return result;
-        }
+    //[&newRules, &groupNum, &listNum](this auto&& self, const Repetition& r) -> BnfChoice {
+    [this](this auto&& self, const Repetition& r) -> BnfChoice {
+      auto result = self(r.item);
+      if(!r.isRepeated) {
+        return result;
+      }
 // replace list by generated list name in original ebnf rule
 // move list to rhs of new rule for generated list name
-        string groupName = format("group_{}", groupNum++);
-        string listName = format("{}_list_{}", groupName, listNum++);
-        BnfRule groupRule{
-          groupName,
-          {
-            result
-          }
-        };
-        BnfRule leftRecursive{
-          listName,
-          {
-            BnfChoice{{
-              BnfSequence{{
-                groupName
-              }}
+      string groupName = format("group_{}", groupNum++);
+      string listName = format("{}_list_{}", groupName, listNum++);
+
+      BnfRule groupRule{ groupName, { result } };
+      newRules.push_back(groupRule);
+
+// brace elision doesn't work
+      BnfRule leftRecursive{
+        listName,
+        {
+          {{
+            {{
+              groupName
             }},
-            BnfChoice{{
-              BnfSequence{{
-                listName,
-                groupName
-              }}
+            {{
+              listName,
+              groupName
             }}
-          }
-        };
-
-        newRules.push_back(groupRule);
-        newRules.push_back(leftRecursive);
-
-        return {{
-          BnfSequence{{
-              listName
           }}
-        }};
-      },
+        }
+      };
+
+      newRules.push_back(leftRecursive);
+
+      return {{ {{ listName }} }};
+    },
 
 // item
-      [](this auto&& self, const Item& i) -> BnfChoice {
-#if __cpp_lib_variant >= 202306L
-        return i.visit(self);
-#else
-        return visit(self, i);
-#endif
-      },
+    [](this auto&& self, const Item& i) -> BnfChoice {
+      return i.visit(self);
+    },
 
 // symbol
-      [](this auto&&, const Symbol& s) -> BnfChoice {
-        if(s[0] == '<' && s.back() == '>') {
-          auto nterm = regex_replace(s.substr(1, s.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
-          return { { BnfSequence{ {nterm} } } };
-        }
-        return { { BnfSequence{ {s} } } };
-      },
+    [](this auto&&, const Symbol& s) -> BnfChoice {
+      if(s[0] == '<' && s.back() == '>') {
+        auto nterm = regex_replace(s.substr(1, s.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
+        return { { BnfSequence{ {nterm} } } };
+      }
+      return { { BnfSequence{ { s } } } };
+    },
 
 
- // default match
-      [](this auto&&, const auto&) -> BnfChoice {
-        println("unexpected ast node inside alternative");
-        return {};
-      },
-    };
+// default match
+    [](this auto&&, const auto&) -> BnfChoice {
+      println("convert.alt: unexpected default match");
+      return {};
+    },
+  };
 
 
-    auto ebnfOverload = overload{
+  auto ebnfOverload = overload{
 // grammar
-      [&newRules](this const auto& self, const Grammar& g) -> BnfNode {
-        BnfHeader header = get<BnfHeader>(self(g.header));
-        vector<BnfRule> rules;
-        for(auto& rule: g.rules) {
-          rules.push_back(get<BnfRule>(self(rule)));
-        }
-        return BnfGrammar{header, rules};
-      },
+    [](this auto&& self, const Grammar& g) -> BnfNode {
+      BnfHeader header = get<BnfHeader>(self(g.header));
+      vector<BnfRule> rules;
+      for(auto& rule: g.rules) {
+        rules.push_back(get<BnfRule>(self(rule)));
+      }
+      return BnfGrammar{ header, rules };
+    },
 
 // rule
-      [](this const auto& self, const Rule& r) -> BnfNode {
-        auto nterm = regex_replace(r.nonterminal.substr(1, r.nonterminal.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
-        vector<BnfChoice> choices;
-        for(auto& alt: r.alts) {
-          choices.push_back(get<BnfChoice>(self(alt)));
-        }
-        return BnfRule{nterm, choices};
-      },
+    [](this auto& self, const Rule& r) -> BnfNode {
+      auto nterm = regex_replace(r.nonterminal.substr(1, r.nonterminal.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
+      vector<BnfChoice> choices;
+      for(auto& alt: r.alts) {
+        choices.push_back(get<BnfChoice>(self(alt)));
+      }
+      return BnfRule{nterm, choices};
+    },
 
 // alternative
-      [altOverload](this const auto& self, const Alternative& a) -> BnfNode {
-        vector<BnfSequence> seqs;
-        for(auto& concat: a.concats) {
-          auto newChoice = altOverload(concat);
-          seqs.append_range(newChoice.seqs);
-        }
-        return BnfChoice{seqs};
-      },
+    [altOverload](this auto& self, const Alternative& a) -> BnfNode {
+      vector<BnfSequence> seqs;
+      for(auto& concat: a.concats) {
+        auto newChoice = altOverload(concat);
+        seqs.append_range(newChoice.seqs);
+      }
+      return BnfChoice{ seqs };
+    },
 
 // header
-      [](this const auto&, const Header& h) -> BnfNode {
-        bool isWhitespace = true;
-        for(const auto& line: h.lines) {
-          if(regex_search(line, regex{"\\S"})) {
-            isWhitespace = false;
-            break;
-          }
+    [](this auto&, const Header& h) -> BnfNode {
+      bool isWhitespace = true;
+      for(const auto& line: h.lines) {
+        if(regex_search(line, regex{"\\S"})) {
+          isWhitespace = false;
+          break;
         }
-        return BnfHeader{
-          isWhitespace,
-          h.lines
-        };
-      },
+      }
+      return BnfHeader{ isWhitespace, h.lines };
+    },
 
-      [](this auto&&, const auto&) -> BnfNode {
-        println("unexpected convert ebnf node");
-        return {};
-      },
-    };
+// default match
+    [](this auto&&, const auto&) -> BnfNode {
+      println("convert.ebnf.new: unexpected default match");
+      return {};
+    },
+  };
 
-#if __cpp_lib_variant >= 202306L
-    auto result = ebnf.visit(ebnfOverload);
+  auto result = ebnf.visit(ebnfOverload);
+  BnfGrammar bnf = get<BnfGrammar>(result);
+  bnf.rules.append_range(newRules);
+
+  return bnf;
+
+}
+
+// old variant visit global function, takes 2 parameters
 #else
-    auto result = visit(ebnfOverload, ebnf);
+
+inline
+void BnfNode::printBnf() const {
+
+  visit(overload{
+
+    [](this auto&& self, const BnfGrammar& g) -> void {
+      self(g.header);
+      for(auto& rule: g.rules) {
+        self(rule);
+        println("\n");
+      }
+    },
+
+    [](this auto&& self, const BnfRule& r) -> void {
+      print("{}:", r.nterm);
+      for(int i = 0; i < ssize(r.choices); ++i) {
+        print("{}", i > 0? "| ": " ");
+        self(r.choices[i]);
+      }
+    },
+
+    [](this auto&& self, const BnfChoice& c) -> void {
+      for(int i = 0; i < ssize(c.seqs); ++i) {
+        print("{}", i > 0? "| ": " ");
+        self(c.seqs[i]);
+      }
+    },
+
+    [](this auto&& self, const BnfSequence& s) -> void {
+      for(auto& sym: s.syms) {
+        self(sym);
+        print(" ");
+      }
+    },
+
+    [](this auto&&, const BnfSymbol& s) -> void {
+      print("{}", s);
+    },
+
+    [](this auto&&, const BnfHeader& h) -> void {
+      if(h.isWhitespace) {
+        return;
+      }
+      println("/*");
+      for(auto& line: h.lines) {
+        print("{}", line);
+      }
+      println("*/");
+      println("");
+    },
+
+// default match
+    [](this const auto&, const auto&) -> void {
+      println("printBnf: unexpected default match");
+    },
+
+  }, *this);
+
+}
+
+// could be const if variables like newRules were local instead of fields in EbnfConvert
+// currently not possible due to segv in vc++ for local captures in nested overload lambdas
+inline
+BnfNode EbnfConvert::convert(const AstNode& ebnf) {
+
+// visit ebnf nodes inside alternative
+  auto altOverload = overload{
+
+// group
+    [](this auto&& self, const Group& g) -> BnfChoice {
+      vector<BnfSequence> seqs;
+      for(auto& concat: g.concats) {
+        auto choice = self(concat);
+        seqs.append_range(choice.seqs);
+      }
+      return { seqs };
+    },
+
+// optional
+    [](this auto&& self, const Optional& o) -> BnfChoice {
+      vector<BnfSequence> seqs{ BnfSequence{{ BnfEmpty{"%empty"} }} };
+      for(auto& concat: o.concats) {
+        auto result = self(concat);
+        seqs.append_range(result.seqs);
+      }
+      return { seqs };
+    },
+
+// concatenation
+// this is the hard part
+// each rep is one or more sequences
+// each sequence is one or more symbols, possibly %empty symbol
+// extend symbol sequences with symbols from each rep sequence
+    [](this auto&& self, const Concatenation& c) -> BnfChoice {
+
+      vector<BnfSequence> seqs;
+
+      for(int i = 0; i < ssize(c.reps); ++i) {
+        const auto& rep = c.reps[i];
+        const auto& result = self(rep);
+        const auto& repSeqs = result.seqs;
+
+        vector<BnfSequence> acc;
+        for(int j = 0; j < ssize(repSeqs); ++j) {
+          vector<BnfSymbol> joinedSyms;
+          for(int k = 0; k < ssize(seqs); ++k) {
+            joinedSyms.clear();
+// drop %empty for any join
+            if(seqs[k].syms[0] == "%empty" && seqs[k].syms.size() > 1) {
+              joinedSyms.append_range(ranges::subrange(seqs[k].syms.begin() + 1, seqs[k].syms.end()));
+            } else {
+              joinedSyms.append_range(seqs[k].syms);
+            }
+            if(repSeqs[j].syms[0] == "%empty" && repSeqs[j].syms.size() > 1) {
+              joinedSyms.append_range(ranges::subrange(repSeqs[j].syms.begin() + 1, repSeqs[j].syms.end()));
+            } else {
+              joinedSyms.append_range(repSeqs[j].syms);
+            }
+            acc.push_back(BnfSequence{joinedSyms});
+          }
+          if(joinedSyms.empty()) {
+            acc.push_back(repSeqs[j]);
+          }
+
+        }
+        seqs = move(acc);
+      }
+      return { seqs };
+    },
+
+// repetition
+    //[&newRules, &groupNum, &listNum](this auto&& self, const Repetition& r) -> BnfChoice {
+    [this](this auto&& self, const Repetition& r) -> BnfChoice {
+      auto result = self(r.item);
+      if(!r.isRepeated) {
+        return result;
+      }
+// replace list by generated list name in original ebnf rule
+// move list to rhs of new rule for generated list name
+      string groupName = format("group_{}", groupNum++);
+      string listName = format("{}_list_{}", groupName, listNum++);
+      BnfRule groupRule{
+        groupName,
+        {
+          result
+        }
+      };
+      newRules.push_back(groupRule);
+
+      BnfRule leftRecursive{
+        listName,
+        {
+          {{
+            {{
+              groupName
+            }},
+            {{
+              listName,
+              groupName
+            }}
+          }}
+        }
+      };
+      newRules.push_back(leftRecursive);
+
+      return {{ {{ listName }} }};
+    },
+
+// item
+    [](this auto&& self, const Item& i) -> BnfChoice {
+      return visit(self, i);
+    },
+
+// symbol
+    [](this auto&&, const Symbol& s) -> BnfChoice {
+      if(s[0] == '<' && s.back() == '>') {
+        auto nterm = regex_replace(s.substr(1, s.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
+        return { { BnfSequence{ {nterm} } } };
+      }
+      return { { BnfSequence{ {s} } } };
+    },
+
+
+// default match
+    [](this const auto&, const auto&) -> BnfChoice {
+      println("convert.alt: unexpected default match");
+      return {};
+    },
+  };
+
+
+  auto ebnfOverload = overload{
+// grammar
+    //[&newRules](this auto&& self, const Grammar& g) -> BnfNode {
+    [this](this auto&& self, const Grammar& g) -> BnfNode {
+      BnfHeader header = get<BnfHeader>(self(g.header));
+      vector<BnfRule> rules;
+      for(auto& rule: g.rules) {
+        rules.push_back(get<BnfRule>(self(rule)));
+      }
+      return BnfGrammar{ header, rules };
+    },
+
+// rule
+    [](this auto&& self, const Rule& r) -> BnfNode {
+      auto nterm = regex_replace(r.nonterminal.substr(1, r.nonterminal.length() - 2), regex{"[^a-zA-Z0-9_]"}, "_");
+      vector<BnfChoice> choices;
+      for(auto& alt: r.alts) {
+        choices.push_back(get<BnfChoice>(self(alt)));
+      }
+      return BnfRule{nterm, choices};
+    },
+
+// alternative
+    //[altOverload](this auto&& self, const Alternative& a) -> BnfNode {
+    [altOverload](this auto&& self, const Alternative& a) -> BnfNode {
+      vector<BnfSequence> seqs;
+      for(auto& concat: a.concats) {
+        //auto newChoice = altOverload(concat);
+        auto newChoice = altOverload(concat);
+        seqs.append_range(newChoice.seqs);
+      }
+      return BnfChoice{ seqs };
+    },
+
+// header
+    [](this auto&&, const Header& h) -> BnfNode {
+      bool isWhitespace = true;
+      for(const auto& line: h.lines) {
+        if(regex_search(line, regex{"\\S"})) {
+          isWhitespace = false;
+          break;
+        }
+      }
+      return BnfHeader{ isWhitespace, h.lines };
+    },
+
+// default match
+    [](this const auto&, const auto&) -> BnfNode {
+      println("convert.ebnf.old: unexpected default match");
+      return {};
+    },
+  };
+
+  auto result = visit(ebnfOverload, ebnf);
+  BnfGrammar bnf = get<BnfGrammar>(result);
+  bnf.rules.append_range(newRules);
+
+  return bnf;
+
+}
 #endif
-    BnfGrammar bnf = get<BnfGrammar>(result);
-    bnf.rules.append_range(newRules);
-
-    return bnf;
-
-  }
-
-private:
-  template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
-
-};
 
 }
 #endif
