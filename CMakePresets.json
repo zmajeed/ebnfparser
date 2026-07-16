@@ -1,0 +1,36 @@
+{
+  "version": 10,
+  "$comment": "ebnfparser cmake presets",
+  "configurePresets": [
+    {
+      "name": "linux-release",
+      "$comment": "Production build using GCC 16 on Linux",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++-16",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc-16"
+      }
+    },
+    {
+      "name": "windows-debug",
+      "$comment": "Debug build for Windows using MSVC",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "windows-debug"
+    }
+  ]
+}
