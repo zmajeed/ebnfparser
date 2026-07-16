@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
-          sudo add-repository ppa:ubuntu-toolchain-r/test -y
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
           sudo apt update
           sudo apt install -y gcc-16 g++-16 cmake ninja-build bison flex
           echo "CC=gcc-16" >> $GITHUB_ENV
