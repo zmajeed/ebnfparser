@@ -248,6 +248,7 @@ postprocess: %empty {
 #include <memory>
 #include <istream>
 #include <fstream>
+#include <print>
 
 #include "lexer/ebnf_lexer.h"
 #include "ebnf_parser.bison.h"
@@ -271,16 +272,16 @@ int main(int argc, char* argv[])
 {
   ios_base::sync_with_stdio(false);
 
-  bool debug{};
-  bool printStats{};
+  int debug{};
+  int printStats{};
 
 // need filename pointer to stick around for bison error messages that print filename and position
   auto inputFilename = make_unique<string>("stdin");
   string changefile;
 
   option opts[] = {
-    {"debug", no_argument, (int*)&debug, 1},
-    {"stats", no_argument, (int*)&printStats, 1},
+    {"debug", no_argument, &debug, 1},
+    {"stats", no_argument, &printStats, 1},
     {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
   };
@@ -300,19 +301,22 @@ int main(int argc, char* argv[])
     }
   }
 
+  if(optind >= argc) {
+    usage();
+    exit(1);
+  }
+
   Lexer lexer;
 
 // set filename for bison error reporting
 // switch input stream for lexer to read from file instead of default stdin
   ifstream fileStream;
-  if(optind < argc) {
-    *inputFilename = argv[optind];
-    if(fileStream.open(*inputFilename); !fileStream) {
-      fprintf(stderr, "error opening file \"%s\"\n", inputFilename->c_str());
-      exit(1);
-    }
-    lexer.switch_streams(&fileStream);
+  *inputFilename = argv[optind];
+  if(fileStream.open(*inputFilename); !fileStream) {
+    println(stderr, "error opening file \"{}\"", inputFilename);
+    exit(1);
   }
+  lexer.switch_streams(&fileStream);
 
   location loc(inputFilename.get());
   BisonParam bisonParam;
@@ -331,8 +335,8 @@ int main(int argc, char* argv[])
     return ev;
   }
 
-  if(printStats) {
-    printf("parse time: %.9f sec\n", bisonParam.parseTimeTakenSec.count());
+  if(printStats == 1) {
+    println("parse time: {:.9f} sec", bisonParam.parseTimeTakenSec.count());
   }
 
   return 0;

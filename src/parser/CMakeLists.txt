@@ -2,22 +2,22 @@
 
 project(ebnfparser_bison)
 
-add_executable(ebnfparse ebnf_parser.cpp)
+add_executable(ebnfparser ebnf_parser.cpp)
 
-target_compile_definitions(ebnfparse PRIVATE $<$<PLATFORM_ID:CYGWIN>: GTEST_HAS_PTHREAD=1 _POSIX_C_SOURCE=200809L _GNU_SOURCE>)
+target_compile_definitions(ebnfparser PRIVATE $<$<PLATFORM_ID:CYGWIN>: GTEST_HAS_PTHREAD=1 _POSIX_C_SOURCE=200809L _GNU_SOURCE>)
 
-target_compile_options(ebnfparse PRIVATE
+target_compile_options(ebnfparser PRIVATE
   $<$<CXX_COMPILER_ID:GNU>: -Wall -Werror -Wextra -std=c++26 -pthread -fconcepts-diagnostics-depth=10>
   $<$<CXX_COMPILER_ID:MSVC>: -std:c++latest -W4 -WX>
 )
-target_compile_options(ebnfparse PRIVATE
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
-    $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
+target_compile_options(ebnfparser PRIVATE
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
+  $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
 )
 
-target_link_libraries(ebnfparse flexbisonlib.ebnfparser)
-target_link_libraries(ebnfparse $<$<CXX_COMPILER_ID:MSVC>:getoptlib>)
+target_link_libraries(ebnfparser flexbisonlib.ebnfparser)
+target_link_libraries(ebnfparser $<$<CXX_COMPILER_ID:MSVC>:getoptlib>)
 
 # tests
 
@@ -30,9 +30,9 @@ target_compile_options(ebnf_parser.gtest PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>: -std:c++latest -W4 -WX>
 )
 target_compile_options(ebnf_parser.gtest PRIVATE
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
-    $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
+  $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
 )
 
 target_link_libraries(ebnf_parser.gtest flexbisonlib.ebnfparser gmock_main)

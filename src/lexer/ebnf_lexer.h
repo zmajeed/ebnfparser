@@ -44,6 +44,7 @@ public:
   Lexer() = default;
 
   explicit Lexer(istream* yyin_arg): yyFlexLexer(yyin_arg) {}
+  explicit Lexer(std::istream& yyin_arg): yyFlexLexer(&yyin_arg) {}
 
 private:
 

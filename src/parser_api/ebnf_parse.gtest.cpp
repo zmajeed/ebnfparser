@@ -1,4 +1,4 @@
-// ebnf_parser.gtest.cpp
+// parser_api/ebnf_parse.gtest.cpp
 
 /*
 MIT License
@@ -24,8 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "lexer/ebnf_lexer.h"
-#include "ebnf_parser.bison.h"
+#include "ebnf_parse.h"
 
 #include <sstream>
 #include <string>
@@ -36,31 +35,22 @@ using namespace std;
 
 using namespace ::testing;
 
-namespace ebnfparser::testing {
+namespace ebnfparse::testing {
 
-TEST(BisonParser, test_0000) {
+TEST(EbnfParse, test_0000) {
 
   stringstream s(R"%(header line 1
 header line 2
 )%");
 
-  Lexer lexer(s);
-  BisonParam bisonParam;
-  LexParam lexParam;
-
-  EbnfParser parser([&lexer](LexParam& lexParam) -> EbnfParser::symbol_type {
-    return lexer.yylex(lexParam);
-  },
-  bisonParam,
-  lexParam);
-
-  EXPECT_EQ(parser(), 0);
+  EXPECT_TRUE(EbnfParse::parse(s));
 }
 
+#if 0
 TEST(BisonParser, test_0001) {
 
   stringstream s("<true literal> ::= TRUE");
-  Lexer lexer(s);
+  Lexer lexer(&s);
   BisonParam bisonParam;
   LexParam lexParam;
 
@@ -81,7 +71,7 @@ TEST(BisonParser, test_0002) {
 | UNKNOWN
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
   BisonParam bisonParam;
   LexParam lexParam;
 
@@ -98,7 +88,7 @@ TEST(BisonParser, test_0003) {
 
   stringstream s("<nested query specification> ::= <left brace> <query specification> <right brace>");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -120,7 +110,7 @@ TEST(BisonParser, test_0004) {
   | <session close command>
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -142,7 +132,7 @@ TEST(BisonParser, test_0005) {
   | <session set command>... [ <session reset command>... ]
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -163,7 +153,7 @@ TEST(BisonParser, test_0006) {
     <transaction mode 1> [ { <comma> <transaction mode 2> }... ]
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -188,7 +178,7 @@ TEST(BisonParser, test_0007) {
          [ <graph source> ]
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -210,7 +200,7 @@ TEST(BisonParser, test_0008) {
   | NODETACH ] DELETE <delete item list>
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -235,7 +225,7 @@ TEST(BisonParser, test_0009) {
   | <nested query specification> }
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -257,7 +247,7 @@ TEST(BisonParser, test_0010) {
          [ <procedure specification> [ <end transaction command> ] ]
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -280,7 +270,7 @@ TEST(BisonParser, test_0011) {
   | <session set parameter clause> }
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -301,7 +291,7 @@ TEST(BisonParser, test_0012) {
   | <double single quote>!! See the Syntax Rules.
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -322,7 +312,7 @@ TEST(BisonParser, test_0013) {
     !! See the Syntax Rules.
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -348,7 +338,7 @@ TEST(BisonParser, test_0014) {
   | <transaction activity>
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -376,7 +366,7 @@ TEST(BisonParser, test_0015) {
 
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -410,7 +400,7 @@ GQL language.
 
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -437,7 +427,7 @@ TEST(BisonParser, test_0017) {
 
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -466,7 +456,7 @@ TEST(BisonParser, test_0018) {
 
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -487,7 +477,7 @@ TEST(BisonParser, test_0019) {
 
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -511,7 +501,7 @@ TEST(BisonParser, test_0020) {
 
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -528,7 +518,7 @@ TEST(BisonParser, test_0020) {
 TEST(BisonParser, test_0021) {
   stringstream s(R"%(
 <pre-reserved word> ::=
-    
+
     ABSTRACT
 
   | AGGREGATE
@@ -536,7 +526,7 @@ TEST(BisonParser, test_0021) {
   | AGGREGATES
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -556,7 +546,7 @@ TEST(BisonParser, test_0022) {
     " "
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -577,7 +567,7 @@ TEST(BisonParser, test_0023) {
     "}"
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -601,7 +591,7 @@ TEST(BisonParser, test_0024) {
     "}"
 )%");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -619,7 +609,7 @@ TEST(BisonParser, test_0025) {
 
   stringstream s("<a> := b");
 
-  Lexer lexer(s);
+  Lexer lexer(&s);
 
   BisonParam bisonParam;
   LexParam lexParam;
@@ -632,6 +622,7 @@ TEST(BisonParser, test_0025) {
 
   EXPECT_NE(parser(), 0);
 }
+#endif
 
 }
 
