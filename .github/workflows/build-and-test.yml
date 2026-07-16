@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies Linux
-        if: matrix.os == ubuntu-latest
+        if: matrix.os == "ubuntu-latest"
         run: |
           sudo add-repository ppa:ubuntu-toolchain-r/test -y
           sudo apt update
