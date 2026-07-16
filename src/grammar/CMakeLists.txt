@@ -3,7 +3,10 @@
 project(ebnfparser_grammar)
 
 # generated source filename should match .l filename
-  flex_target(flex_files ebnf_lexer.flex.l ${CMAKE_CURRENT_BINARY_DIR}/ebnf_lexer.flex.cpp COMPILE_FLAGS "-f --nounistd")
+flex_target(flex_files ebnf_lexer.flex.l
+  ${CMAKE_CURRENT_BINARY_DIR}/ebnf_lexer.flex.cpp
+  COMPILE_FLAGS "-f --nounistd"
+)
  
 # generated source filename should match .y filename
 bison_target(bison_files ebnf_parser.bison.y
@@ -45,7 +48,6 @@ add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/ebnf_lexer.flex.cpp ${GEN_SRC_DIR}
 )
 
-if(1)
 add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
   COMMENT "Strip absolute local paths from generated bison, flex files"
   COMMAND sed -Ei 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_parser.bison.h
@@ -57,4 +59,8 @@ add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
   COMMAND sed -Ei 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_lexer.flex.cpp
   COMMAND sed -Ei 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_lexer.flex.cpp
 )
-endif()
+
+add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
+  COMMAND sed -Ei [[s/(YY_YY).*(_LOCATIONS_BISON_H)/\1\2/]] ${GEN_SRC_DIR}/locations.bison.h
+  VERBATIM
+)
