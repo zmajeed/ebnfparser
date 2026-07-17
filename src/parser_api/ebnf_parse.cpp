@@ -1,4 +1,4 @@
-// ebnf_convert.cpp
+// parser_api/ebnf_parse.cpp
 
 /*
 MIT License
@@ -24,10 +24,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ebnf_convert.h"
+#include "ebnf_parse.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <getopt.h>
 
 #include <string>
@@ -35,23 +34,21 @@ SOFTWARE.
 #include <memory>
 #include <istream>
 #include <fstream>
-
-#include "lexer/ebnf_lexer.h"
-#include "ebnf_parser.bison.h"
+#include <print>
 
 using namespace std;
-using namespace ebnfparser;
-using namespace ebnfconvert;
+using namespace ebnfparse;
 
 void usage() {
-  println("Usage: ebnfconvert [-h | --help] [--debug] [file]");
-  println("Convert an EBNF grammar to BNF");
+  println("Usage: ebnfparse [-h | --help] [--debug] [--stats] [file]");
+  println("Parses valid EBNF as defined in Section 5.2 of the GQL ISO-39075:2024 standard");
+  println("Prints nothing if parse succeeds, otherwise prints an error message with line number");
   println("");
   println("Options:");
   println("--debug: turns on Bison parser and Flex lexer debug traces, off by default");
   println("--stats: print timing stats on successful parse, off by default");
   println("--help | -h: prints usage help");
-  println("file: extended EBNF grammar file");
+  println("file: EBNF grammar file, use stdin if no file or file is \"-\"");
 }
 
 int main(int argc, char* argv[])
@@ -59,7 +56,7 @@ int main(int argc, char* argv[])
   int debug = 0;
   int printStats = 0;
   int printEbnf = 0;
-
+  int convert = 0;
 
 // need filename pointer to stick around for bison error messages that print filename and position
   auto inputFilename = make_unique<string>("stdin");
@@ -68,6 +65,7 @@ int main(int argc, char* argv[])
     {"debug", no_argument, &debug, 1},
     {"print", no_argument, &printEbnf, 1},
     {"stats", no_argument, &printStats, 1},
+    {"convert", no_argument, &convert, 1},
     {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
   };
@@ -92,10 +90,6 @@ int main(int argc, char* argv[])
     exit(1);
   }
 
-  Lexer lexer;
-
-// set filename for bison error reporting
-// switch input stream for lexer to read from file instead of default stdin
   ifstream fileStream;
 
   auto file = argv[optind];
@@ -105,51 +99,33 @@ int main(int argc, char* argv[])
       exit(1);
     }
   }
-  *inputFilename = file;
-  lexer.switch_streams(&fileStream);
 
-  BisonParam bisonParam;
-  LexParam lexParam{.loc = location(inputFilename.get())};
+  auto ev = EbnfParse::parse(fileStream);
 
-  duration<double> yylexSec{};
-
-  EbnfParser parser(
-    [&lexer, &yylexSec](LexParam& lexParam) -> EbnfParser::symbol_type {
-      time_point<steady_clock> start = steady_clock::now();
-      auto token = lexer.yylex(lexParam);
-      time_point<steady_clock> end = steady_clock::now();
-      yylexSec += end - start;
-      return token;
-    },
-    bisonParam,
-    lexParam
-  );
-
-  lexer.set_debug(debug);
-  parser.set_debug_level(debug);
-
-  if(auto ev = parser(); ev != 0) {
-    fputs("parse failed\n", stderr);
-    return ev;
+  if(!ev) {
+    println(stderr, "parse failed");
+    return ev.error();
   }
+
+  Ebnf ebnf{move(ev.value())};
 
   if(printEbnf == 1) {
-    bisonParam.ast.printAst();
+    ebnf.print();
   }
 
-  EbnfConvert ebnf;
-  auto bnf = ebnf.convert(bisonParam.ast);
+  if(convert == 1) {
+    auto _ = ebnf.convert();
+    Bnf bnf = move(_.value());
+    bnf.print();
+  }
 
-  bnf.printBnf();
-
-
+#if 0
   if(printStats == 1) {
-    //const auto& [_, _, parseSecs, numRulesParsed, numRulesGenerated] = bisonParam.stats;
     const auto& [_, __, parseSec] = bisonParam.stats;
-    println("parse time {:.9f} sec", parseSec.count());
-    println("lex time {:.9f} sec", yylexSec.count());
-    //println("total rules: {} EBNF rules parsed, {} BNF rules generated", numRulesParsed, numRulesGenerated);
+    println("parse time: {:.9f} sec", parseSec.count());
+    println("lex_time {:.9f} sec", yylexSec.count());
   }
+#endif
 
   return 0;
 }

@@ -1,0 +1,120 @@
+{
+  "version": 10,
+  "$comment": "ebnfparser cmake presets",
+  "configurePresets": [
+    {
+      "name": "linux-release",
+      "$comment": "Linux GCC release build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++-16",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc-16"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "$comment": "Linux GCC debug build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++-16",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc-16"
+      }
+    },
+    {
+      "name": "windows-release",
+      "$comment": "Windows VC++ release build",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build/windows-release",
+      "cacheVariables": {
+      }
+    },
+    {
+      "name": "windows-debug",
+      "$comment": "Windows VC++ debug build",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build/windows-debug",
+      "cacheVariables": {
+      }
+    },
+    {
+      "name": "cygwin-release",
+      "$comment": "Cygwin GCC release build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cygwin-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc"
+      }
+    },
+    {
+      "name": "cygwin-debug",
+      "$comment": "Cygwin GCC debug build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cygwin-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release"
+    },
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows-debug"
+    },
+    {
+      "name": "cygwin-release",
+      "configurePreset": "cygwin-release"
+    },
+    {
+      "name": "cygwin-debug",
+      "configurePreset": "cygwin-debug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "cygwin-release",
+      "configurePreset": "cygwin-release"
+    },
+    {
+      "name": "cygwin-debug",
+      "configurePreset": "cygwin-debug"
+    }
+  ]
+}

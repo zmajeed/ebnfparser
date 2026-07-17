@@ -2,26 +2,21 @@
 
 project(ebnfparser_src)
 
-include(FetchContent)
+if(NOT WIN32)
+  message("Generate bison, flex files from src/grammar")
+  add_subdirectory(grammar)
+else()
+  message("Use checked-in generated bison, flex files from src/flexbison.gen")
+  add_subdirectory(flexbison.gen)
+endif()
 
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest
-  GIT_TAG main
-  GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(googletest)
-
-add_subdirectory(grammar)
 add_subdirectory(parser)
 add_subdirectory(lexer)
 
 add_subdirectory(ast)
 
+add_subdirectory(parser_api)
+
 add_subdirectory(ebnf_convert)
-
-# add_subdirectory(ebnftobison)
-
-# add_subdirectory(flatsetvariant)
 
 enable_testing()

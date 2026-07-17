@@ -12,9 +12,9 @@ target_compile_options(ebnfconvert PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>: -std:c++latest -W4 -WX>
 )
 target_compile_options(ebnfconvert PRIVATE
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
-    $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
+  $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
 )
 
 target_link_libraries(ebnfconvert flexbisonlib.ebnfparser)
@@ -30,9 +30,9 @@ target_compile_options(ebnf_convert.gtest PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>: -std:c++latest -W4 -WX>
 )
 target_compile_options(ebnf_convert.gtest PRIVATE
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
-    $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
-    $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:GNU>>: -O0 -ggdb3>
+  $<$<AND:$<CONFIG:release>,$<CXX_COMPILER_ID:GNU>>: -Og>
+  $<$<AND:$<CONFIG:debug>,$<CXX_COMPILER_ID:MSVC>>: -Od -Zi>
 )
 
 target_link_libraries(ebnf_convert.gtest flexbisonlib.ebnfparser gmock_main)

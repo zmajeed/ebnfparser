@@ -42,7 +42,7 @@ using namespace std;
 using namespace ebnfparser;
 
 void usage() {
-  println("Usage: ebnfparse [-h | --help] [--debug] [--stats] [file]");
+  println("Usage: ebnfparser [-h | --help] [--debug] [--stats] [file]");
   println("Parses valid EBNF as defined in Section 5.2 of the GQL ISO-39075:2024 standard");
   println("Prints nothing if parse succeeds, otherwise prints an error message with line number");
   println("");
@@ -55,17 +55,17 @@ void usage() {
 
 int main(int argc, char* argv[])
 {
-  bool debug = false;
-  bool printStats = false;
-  bool printEbnf = false;
+  int debug = 0;
+  int printStats = 0;
+  int printEbnf = 0;
 
 // need filename pointer to stick around for bison error messages that print filename and position
   auto inputFilename = make_unique<string>("stdin");
 
   option opts[] = {
-    {"debug", no_argument, (int*)&debug, 1},
-    {"print", no_argument, (int*)&printEbnf, 1},
-    {"stats", no_argument, (int*)&printStats, 1},
+    {"debug", no_argument, &debug, 1},
+    {"print", no_argument, &printEbnf, 1},
+    {"stats", no_argument, &printStats, 1},
     {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
   };
@@ -85,37 +85,43 @@ int main(int argc, char* argv[])
     }
   }
 
+  if(optind >= argc) {
+    usage();
+    exit(1);
+  }
+
   Lexer lexer;
 
 // set filename for bison error reporting
 // switch input stream for lexer to read from file instead of default stdin
   ifstream fileStream;
-  if(optind < argc) {
-    auto file = argv[optind];
-    if(file != "-"sv) {
-      if(fileStream.open(file); !fileStream) {
-        println(stderr, "error opening file \"{}\"", file);
-        exit(1);
-      }
+
+  auto file = argv[optind];
+  if(file != "-"sv) {
+    if(fileStream.open(file); !fileStream) {
+      println(stderr, "error opening file \"{}\"", file);
+      exit(1);
     }
-    *inputFilename = file;
-    lexer.switch_streams(&fileStream);
   }
+  *inputFilename = file;
+  lexer.switch_streams(&fileStream);
 
   BisonParam bisonParam;
   LexParam lexParam{.loc = location(inputFilename.get())};
 
   duration<double> yylexSec{};
 
-  EbnfParser parser([&lexer, &yylexSec](LexParam& lexParam) -> EbnfParser::symbol_type {
-    time_point<steady_clock> start = steady_clock::now();
-    auto token = lexer.yylex(lexParam);
-    time_point<steady_clock> end = steady_clock::now();
-    yylexSec += end - start;
-    return token;
-  },
-  bisonParam,
-  lexParam);
+  EbnfParser parser(
+    [&lexer, &yylexSec](LexParam& lexParam) -> EbnfParser::symbol_type {
+      time_point<steady_clock> start = steady_clock::now();
+      auto token = lexer.yylex(lexParam);
+      time_point<steady_clock> end = steady_clock::now();
+      yylexSec += end - start;
+      return token;
+    },
+    bisonParam,
+    lexParam
+  );
 
   lexer.set_debug(debug);
   parser.set_debug_level(debug);

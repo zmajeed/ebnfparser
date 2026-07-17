@@ -1,32 +1,63 @@
-# github/workflows/build-and-test.yml
-
-# github actions config
-
 name: Build and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-    
+        include:
+          - os: ubuntu-26.04
+            preset: linux-release
+          - os: windows-latest
+            preset: windows-debug
+
     runs-on: ${{ matrix.os }}
     
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Configure CMake
-        run: cmake -B build -S .
-        
+
+      - name: Install Linux
+        if: matrix.os == 'ubuntu-26.04'
+        run: |
+          sudo apt update
+          sudo apt install -y gcc-16 g++-16 cmake ninja-build bison flex libfl-dev
+          echo "CC=gcc-16" >> $GITHUB_ENV
+          echo "CXX=g++-16" >> $GITHUB_ENV
+
+      - name: Program versions Linux
+        if: matrix.os == 'ubuntu-26.04'
+        run: |
+          echo "uname -a"
+          uname -a
+          echo "lsb_release -a"
+          lsb_release -a
+          echo "g++ --version"
+          g++-16 --version
+          echo "cmake --version"
+          cmake --version
+          echo "bison --version"
+          bison --version
+          echo "flex --version"
+          flex --version
+          echo "ls -l FlexLexer.h"
+          ls -l /usr/include/FlexLexer.h
+
+      - name: Program versions Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "cmake --version"
+          cmake --version
+
+      - name: CMake Configure
+        run: cmake --preset ${{ matrix.preset }}
+
       - name: Build
-        run: cmake --build build --config Release
-        
-      - name: Test
-        working-directory: build
-        run: ctest --output-on-failure -C Release
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Run Tests
+        run: ctest --preset ${{ matrix.preset }}

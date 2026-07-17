@@ -1,0 +1,10 @@
+build/
+scratch/
+out/
+.git/
+.github/
+.cache/
+*.o
+*.out
+*.a
+*.exe
