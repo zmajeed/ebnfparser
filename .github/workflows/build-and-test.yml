@@ -64,32 +64,6 @@ jobs:
           echo "cmake --version"
           cmake --version
 
-      - name: Cygwin setup
-        if: matrix.is_cygwin == true
-        uses: cygwin/cygwin-install-action@v4
-        with:
-          platform: x64
-          packages: cmake ninja gcc-core gcc-g++ bison flex
-
-      - name: Cygwin versions
-        if: matrix.is_cygwin == true
-        shell: 'D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}'
-        run: |
-          set -o igncr
-          echo "--- Cygwin versions ---"
-          echo "uname -a"
-          uname -a
-          echo "g++ --version"
-          g++-16 --version
-          echo "cmake --version"
-          cmake --version
-          echo "bison --version"
-          bison --version
-          echo "flex --version"
-          flex --version
-          echo "ls -l FlexLexer.h"
-          ls -l /usr/include/FlexLexer.h
-
       - name: CMake Configure
         if: matrix.is_cygwin == false
         run: cmake --preset ${{ matrix.preset }}
@@ -102,23 +76,45 @@ jobs:
         if: matrix.is_cygwin == false
         run: ctest --preset ${{ matrix.preset }} --output-on-failure
 
+      - name: Cygwin setup
+        if: matrix.is_cygwin == true
+        uses: cygwin/cygwin-install-action@v4
+        with:
+          platform: x64
+          packages: cmake ninja gcc-core gcc-g++ bison flex
+
+      - name: Cygwin versions
+        if: matrix.is_cygwin == true
+        shell: bash
+        run: |
+          echo "--- Cygwin versions ---"
+          echo "uname -a" | tr -d '\r'
+          uname -a --
+          echo "g++ --version"
+          g++-16 --version
+          echo "cmake --version"
+          cmake --version
+          echo "bison --version"
+          bison --version
+          echo "flex --version"
+          flex --version
+          echo "ls -l FlexLexer.h"
+          ls -l /usr/include/FlexLexer.h
+
       - name: Cygwin CMake Configure
         if: matrix.is_cygwin == true
-        shell: 'D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}'
+        shell: bash
         run: |
-          set -o igncr
           cmake --preset ${{ matrix.preset }}
 
       - name: Cygwin Build
         if: matrix.is_cygwin == true
-        shell: 'D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}'
+        shell: bash
         run: |
-          set -o igncr
           cmake --build --preset ${{ matrix.preset }}
 
       - name: Cygwin Run Tests
         if: matrix.is_cygwin == true
-        shell: 'D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}'
+        shell: bash
         run: |
-          set -o igncr
           ctest --preset ${{ matrix.preset }} --output-on-failure
