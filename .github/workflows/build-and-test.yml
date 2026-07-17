@@ -52,6 +52,8 @@ jobs:
         run: |
           echo "cmake --version"
           cmake --version
+          echo "cl -?"
+          cl -? >$null
 
       - name: CMake Configure
         run: cmake --preset ${{ matrix.preset }}

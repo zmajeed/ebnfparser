@@ -1,5 +1,7 @@
 # A Grammar and Parser for EBNF
 
+[![Build and Test](https://github.com/zmajeed/ebnfparser/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/zmajeed/ebnfparser/actions/workflows/build-and-test.yml)
+
 I wrote this Bison BNF grammar to parse the extended BNF notation used to specify the GQL Graph Query Language in the ISO-39075:2024 standard.
 
 ```bison
