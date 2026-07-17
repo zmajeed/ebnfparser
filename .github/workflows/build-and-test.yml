@@ -75,6 +75,7 @@ jobs:
         if: matrix.is_cygwin == true
         shell: bash
         run: |
+          set -o igncr
           echo "--- Cygwin versions ---"
           echo "uname -a"
           uname -a
@@ -104,14 +105,20 @@ jobs:
       - name: Cygwin CMake Configure
         if: matrix.is_cygwin == true
         shell: bash
-        run: cmake --preset ${{ matrix.preset }}
+        run: |
+          set -o igncr
+          cmake --preset ${{ matrix.preset }}
 
       - name: Cygwin Build
         if: matrix.is_cygwin == true
         shell: bash
-        run: cmake --build --preset ${{ matrix.preset }}
+        run: |
+          set -o igncr
+          cmake --build --preset ${{ matrix.preset }}
 
       - name: Cygwin Run Tests
         if: matrix.is_cygwin == true
         shell: bash
-        run: ctest --preset ${{ matrix.preset }} --output-on-failure
+        run: |
+          set -o igncr
+          ctest --preset ${{ matrix.preset }} --output-on-failure
