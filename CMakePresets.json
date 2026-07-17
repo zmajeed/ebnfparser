@@ -6,7 +6,7 @@
       "name": "linux-release",
       "$comment": "Linux GCC release build",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
+      "binaryDir": "${sourceDir}/build/linux-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_COMPILER": "/usr/bin/g++-16",
@@ -17,7 +17,7 @@
       "name": "linux-debug",
       "$comment": "Linux GCC debug build",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/debug",
+      "binaryDir": "${sourceDir}/build/linux-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_COMPILER": "/usr/bin/g++-16",
@@ -28,18 +28,38 @@
       "name": "windows-release",
       "$comment": "Windows VC++ release build",
       "generator": "Visual Studio 18 2026",
-      "binaryDir": "${sourceDir}/build/release",
+      "binaryDir": "${sourceDir}/build/windows-release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
       "name": "windows-debug",
       "$comment": "Windows VC++ debug build",
       "generator": "Visual Studio 18 2026",
-      "binaryDir": "${sourceDir}/build/debug",
+      "binaryDir": "${sourceDir}/build/windows-debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "cygwin-release",
+      "$comment": "Cygwin GCC release build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cygwin-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc"
+      }
+    },
+    {
+      "name": "cygwin-debug",
+      "$comment": "Cygwin GCC debug build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cygwin-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc"
       }
     }
   ],
@@ -59,6 +79,14 @@
     {
       "name": "windows-debug",
       "configurePreset": "windows-debug"
+    },
+    {
+      "name": "cygwin-release",
+      "configurePreset": "cygwin-release"
+    },
+    {
+      "name": "cygwin-debug",
+      "configurePreset": "cygwin-debug"
     }
   ],
   "testPresets": [
@@ -72,11 +100,21 @@
     },
     {
       "name": "windows-release",
-      "configurePreset": "windows-release"
+      "configurePreset": "windows-release",
+      "configuration": "Debug"
     },
     {
       "name": "windows-debug",
-      "configurePreset": "windows-debug"
+      "configurePreset": "windows-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "cygwin-release",
+      "configurePreset": "cygwin-release"
+    },
+    {
+      "name": "cygwin-debug",
+      "configurePreset": "cygwin-debug"
     }
   ]
 }

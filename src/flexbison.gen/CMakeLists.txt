@@ -19,3 +19,4 @@ target_compile_options(flexbisonlib.ebnfparser PRIVATE
 target_include_directories(flexbisonlib.ebnfparser PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(flexbisonlib.ebnfparser PUBLIC . $<$<CXX_COMPILER_ID:MSVC>: ${CMAKE_SOURCE_DIR}/thirdparty/flex>)
 
+enable_testing()

@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies Linux
+      - name: Install Linux
         if: matrix.os == 'ubuntu-26.04'
         run: |
           sudo apt update
@@ -29,7 +29,7 @@ jobs:
           echo "CC=gcc-16" >> $GITHUB_ENV
           echo "CXX=g++-16" >> $GITHUB_ENV
 
-      - name: Program versions
+      - name: Program versions Linux
         if: matrix.os == 'ubuntu-26.04'
         run: |
           echo "uname -a"
@@ -47,11 +47,17 @@ jobs:
           echo "ls -l FlexLexer.h"
           ls -l /usr/include/FlexLexer.h
 
-      - name: Configure CMake
+      - name: Program versions Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "cmake --version"
+          cmake --version
+
+      - name: CMake Configure
         run: cmake --preset ${{ matrix.preset }}
 
-      - name: Build Project
+      - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
-      - name: Test
+      - name: Run Tests
         run: ctest --preset ${{ matrix.preset }}

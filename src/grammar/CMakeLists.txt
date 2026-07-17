@@ -2,6 +2,9 @@
 
 project(ebnfparser_grammar)
 
+find_package(FLEX)
+find_package(BISON)
+
 # generated source filename should match .l filename
 flex_target(flex_files ebnf_lexer.flex.l
   ${CMAKE_CURRENT_BINARY_DIR}/ebnf_lexer.flex.cpp
@@ -65,3 +68,5 @@ add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
   COMMAND sed -Ei [[s/(YY_YY).*(_LOCATIONS_BISON_H)/\1\2/]] ${GEN_SRC_DIR}/locations.bison.h
   VERBATIM
 )
+
+enable_testing()
