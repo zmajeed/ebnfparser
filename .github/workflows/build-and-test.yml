@@ -73,7 +73,7 @@ jobs:
 
       - name: Cygwin versions
         if: matrix.is_cygwin == true
-        shell: bash
+        shell: D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}
         run: |
           set -o igncr
           echo "--- Cygwin versions ---"
@@ -104,21 +104,21 @@ jobs:
 
       - name: Cygwin CMake Configure
         if: matrix.is_cygwin == true
-        shell: bash
+        shell: D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}
         run: |
           set -o igncr
           cmake --preset ${{ matrix.preset }}
 
       - name: Cygwin Build
         if: matrix.is_cygwin == true
-        shell: bash
+        shell: D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}
         run: |
           set -o igncr
           cmake --build --preset ${{ matrix.preset }}
 
       - name: Cygwin Run Tests
         if: matrix.is_cygwin == true
-        shell: bash
+        shell: D:\cygwin\bin\bash.exe --noprofile --norc -e -o pipefail {0}
         run: |
           set -o igncr
           ctest --preset ${{ matrix.preset }} --output-on-failure
