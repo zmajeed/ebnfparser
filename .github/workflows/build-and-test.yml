@@ -25,7 +25,7 @@ jobs:
         if: matrix.os == 'ubuntu-26.04'
         run: |
           sudo apt update
-          sudo apt install -y gcc-16 g++-16 cmake ninja-build bison flex
+          sudo apt install -y gcc-16 g++-16 cmake ninja-build bison flex libfl-dev
           echo "CC=gcc-16" >> $GITHUB_ENV
           echo "CXX=g++-16" >> $GITHUB_ENV
 
