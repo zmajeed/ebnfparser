@@ -91,10 +91,10 @@ jobs:
         shell: bash
         run: |
           echo "--- Cygwin versions ---"
-          echo "uname -a" | tr -d '\r'
-          uname -a --
+          echo "uname -a"
+          uname -a
           echo "g++ --version"
-          g++-16 --version
+          g++ --version
           echo "cmake --version"
           cmake --version
           echo "bison --version"
