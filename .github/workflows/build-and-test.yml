@@ -27,6 +27,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     
+    env:
+      SHELLOPTS: igncr
+
     steps:
       - uses: actions/checkout@v4
 
