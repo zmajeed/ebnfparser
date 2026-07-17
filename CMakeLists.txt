@@ -16,5 +16,6 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(thirdparty)
 add_subdirectory(src)
+add_subdirectory(tests)
 
 enable_testing()
