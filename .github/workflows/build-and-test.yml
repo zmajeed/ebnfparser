@@ -84,8 +84,8 @@ jobs:
         uses: cygwin/cygwin-install-action@v4
         with:
           platform: x64
-          extra-options: --enable-test-packages
-          packages: cmake ninja gcc-g++=16.1.0+20260613-0.1 bison flex
+          allow-test-packages: true
+          packages: cmake ninja gcc-core=16.1.0+20260613-0.1 gcc-g++=16.1.0+20260613-0.1 bison flex
 
       - name: Cygwin versions
         if: matrix.is_cygwin == true
