@@ -30,6 +30,7 @@ jobs:
           echo "CXX=g++-16" >> $GITHUB_ENV
 
       - name: Program versions
+        if: matrix.os == 'ubuntu-26.04'
         run: |
           echo "uname -a"
           uname -a
