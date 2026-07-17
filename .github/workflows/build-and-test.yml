@@ -27,6 +27,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     
+    env:
+      SHELLOPTS: igncr
+
     steps:
       - uses: actions/checkout@v4
 
@@ -58,18 +61,31 @@ jobs:
           ls -l /usr/include/FlexLexer.h
 
       - name: Windows versions
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && matrix.is_cygwin == false
         run: |
           echo "--- Windows versions ---"
           echo "cmake --version"
           cmake --version
 
+      - name: CMake Configure
+        if: matrix.is_cygwin == false
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        if: matrix.is_cygwin == false
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Run Tests
+        if: matrix.is_cygwin == false
+        run: ctest --preset ${{ matrix.preset }} --output-on-failure
+
       - name: Cygwin setup
         if: matrix.is_cygwin == true
-        uses: cygwin/cygwin-install-action@v4
+        uses: cygwin/cygwin-install-action@v6
         with:
           platform: x64
-          packages: cmake ninja gcc-core gcc-g++ bison flex
+          allow-test-packages: 'true'
+          packages: cmake ninja gcc-core=16.1.0+20260613-0.1 gcc-g++=16.1.0+20260613-0.1 bison flex
 
       - name: Cygwin versions
         if: matrix.is_cygwin == true
@@ -79,7 +95,7 @@ jobs:
           echo "uname -a"
           uname -a
           echo "g++ --version"
-          g++-16 --version
+          g++ --version
           echo "cmake --version"
           cmake --version
           echo "bison --version"
@@ -89,14 +105,20 @@ jobs:
           echo "ls -l FlexLexer.h"
           ls -l /usr/include/FlexLexer.h
 
-      - name: CMake Configure
-        shell: ${{ matrix.is_cygwin && 'bash' || 'default' }}
-        run: cmake --preset ${{ matrix.preset }}
+      - name: Cygwin CMake Configure
+        if: matrix.is_cygwin == true
+        shell: bash
+        run: |
+          cmake --preset ${{ matrix.preset }}
 
-      - name: Build
-        shell: ${{ matrix.is_cygwin && 'bash' || 'default' }}
-        run: cmake --build --preset ${{ matrix.preset }}
+      - name: Cygwin Build
+        if: matrix.is_cygwin == true
+        shell: bash
+        run: |
+          cmake --build --preset ${{ matrix.preset }}
 
-      - name: Run Tests
-        shell: ${{ matrix.is_cygwin && 'bash' || 'default' }}
-        run: ctest --preset ${{ matrix.preset }} --output-on-failure
+      - name: Cygwin Run Tests
+        if: matrix.is_cygwin == true
+        shell: bash
+        run: |
+          ctest --preset ${{ matrix.preset }} --output-on-failure
