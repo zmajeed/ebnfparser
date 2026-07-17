@@ -49,11 +49,13 @@ jobs:
 
       - name: Program versions Windows
         if: matrix.os == 'windows-latest'
+        shell: cmd
         run: |
           echo "cmake --version"
           cmake --version
           echo "cl -?"
-          cl -? >$null
+          call c:\program files\microsoft visual studio\2026\community\common7\tools\vsdevcmd.bat
+          cl -? >nul
 
       - name: CMake Configure
         run: cmake --preset ${{ matrix.preset }}
