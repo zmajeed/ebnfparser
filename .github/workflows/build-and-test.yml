@@ -37,13 +37,15 @@ jobs:
           echo "lsb_release -a"
           lsb_release -a
           echo "g++ --version"
-          g++ --version
+          g++-16 --version
           echo "cmake --version"
           cmake --version
           echo "bison --version"
           bison --version
           echo "flex --version"
           flex --version
+          echo "ls -l FlexLexer.h"
+          ls -l /usr/include/FlexLexer.h
 
       - name: Configure CMake
         run: cmake --preset ${{ matrix.preset }}
