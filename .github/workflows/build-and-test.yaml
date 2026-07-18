@@ -39,8 +39,18 @@ jobs:
             preset: cygwin-release
             is_cygwin: true
             exhaustive: true
+          - os: macos-latest
+            preset: mac-release
+            is_cygwin: false
+            exhaustive: false
 
     runs-on: ${{ matrix.os }}
+
+# early return for os in exhaustive list unless it's scheduled or manual run
+    if: |
+      matrix.exhaustive == false ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true)
 
     env:
       SHELLOPTS: igncr
@@ -99,6 +109,16 @@ jobs:
       - name: Run Tests
         if: matrix.is_cygwin == false
         run: ctest --preset ${{ matrix.preset }} --output-on-failure
+
+# Mac
+
+      - name: Mac setup
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install cmake ninja bison flex
+          echo "BISON_ROOT=$(brew --prefix bison)" >> $GITHUB_ENV
+          echo "FLEX_ROOT=$(brew --prefix flex)" >> $GITHUB_ENV
 
 # Cygwin
 

@@ -61,6 +61,28 @@
         "CMAKE_CXX_COMPILER": "/usr/bin/g++",
         "CMAKE_C_COMPILER": "/usr/bin/gcc"
       }
+    },
+    {
+      "name": "mac-release",
+      "$comment": "Mac Clang release build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/mac-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BISON_EXECUTABLE": "$env{BISON_ROOT}/bin/bison",
+        "FLEX_EXECUTABLE": "$env{FLEX_ROOT}/bin/flex"
+      }
+    },
+    {
+      "name": "mac-debug",
+      "$comment": "Mac Clang debug build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/mac-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BISON_EXECUTABLE": "$env{BISON_ROOT}/bin/bison",
+        "FLEX_EXECUTABLE": "$env{FLEX_ROOT}/bin/flex"
+      }
     }
   ],
   "buildPresets": [
@@ -87,6 +109,14 @@
     {
       "name": "cygwin-debug",
       "configurePreset": "cygwin-debug"
+    },
+    {
+      "name": "mac-release",
+      "configurePreset": "mac-release"
+    },
+    {
+      "name": "mac-debug",
+      "configurePreset": "mac-debug"
     }
   ],
   "testPresets": [
@@ -115,6 +145,14 @@
     {
       "name": "cygwin-debug",
       "configurePreset": "cygwin-debug"
+    },
+    {
+      "name": "mac-release",
+      "configurePreset": "mac-release"
+    },
+    {
+      "name": "mac-debug",
+      "configurePreset": "mac-debug"
     }
   ]
 }
