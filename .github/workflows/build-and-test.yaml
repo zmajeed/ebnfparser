@@ -6,32 +6,49 @@ on:
   pull_request:
     branches: [ main ]
 
+  workflow_dispatch:
+    inputs:
+      run_exhaustive:
+        description: 'Run exhaustive tests and secondary platforms?'
+        type: boolean
+        required: false
+        default: false
+
+  schedule:
+    - cron: '0 2 * * *'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-      
+
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-26.04
             preset: linux-release
             is_cygwin: false
+            exhaustive: false
           - os: windows-latest
             preset: windows-debug
             is_cygwin: false
+            exhaustive: false
           - os: windows-latest
-            preset: cygwin-debug
+            preset: cygwin-release
             is_cygwin: true
+            exhaustive: true
 
     runs-on: ${{ matrix.os }}
-    
+
     env:
       SHELLOPTS: igncr
 
     steps:
       - uses: actions/checkout@v4
+
+# Linux
 
       - name: Linux setup
         if: matrix.os == 'ubuntu-26.04'
@@ -60,12 +77,16 @@ jobs:
           echo "ls -l FlexLexer.h"
           ls -l /usr/include/FlexLexer.h
 
+# Windows
+
       - name: Windows versions
         if: matrix.os == 'windows-latest' && matrix.is_cygwin == false
         run: |
           echo "--- Windows versions ---"
           echo "cmake --version"
           cmake --version
+
+# Common except Cygwin
 
       - name: CMake Configure
         if: matrix.is_cygwin == false
@@ -79,8 +100,12 @@ jobs:
         if: matrix.is_cygwin == false
         run: ctest --preset ${{ matrix.preset }} --output-on-failure
 
+# Cygwin
+
       - name: Cygwin setup
-        if: matrix.is_cygwin == true
+        if: |
+          matrix.is_cygwin == true &&
+          (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true))
         uses: cygwin/cygwin-install-action@v6
         with:
           platform: x64
@@ -88,7 +113,9 @@ jobs:
           packages: cmake ninja gcc-core=16.1.0+20260613-0.1 gcc-g++=16.1.0+20260613-0.1 bison flex
 
       - name: Cygwin versions
-        if: matrix.is_cygwin == true
+        if: |
+          matrix.is_cygwin == true &&
+          (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true))
         shell: bash
         run: |
           echo "--- Cygwin versions ---"
@@ -106,19 +133,25 @@ jobs:
           ls -l /usr/include/FlexLexer.h
 
       - name: Cygwin CMake Configure
-        if: matrix.is_cygwin == true
+        if: |
+          matrix.is_cygwin == true &&
+          (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true))
         shell: bash
         run: |
           cmake --preset ${{ matrix.preset }}
 
       - name: Cygwin Build
-        if: matrix.is_cygwin == true
+        if: |
+          matrix.is_cygwin == true &&
+          (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true))
         shell: bash
         run: |
           cmake --build --preset ${{ matrix.preset }}
 
       - name: Cygwin Run Tests
-        if: matrix.is_cygwin == true
+        if: |
+          matrix.is_cygwin == true &&
+          (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true))
         shell: bash
         run: |
           ctest --preset ${{ matrix.preset }} --output-on-failure
