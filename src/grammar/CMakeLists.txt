@@ -2,6 +2,12 @@
 
 project(ebnfparser_grammar)
 
+# find_package can't find bison, flex paths on mac without this
+if(APPLE)
+  find_program(BISON_EXECUTABLE NAMES bison REQUIRED)
+  find_program(FLEX_EXECUTABLE NAMES flex REQUIRED)
+endif()
+
 find_package(FLEX)
 find_package(BISON)
 
