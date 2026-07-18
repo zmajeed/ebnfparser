@@ -119,9 +119,9 @@ jobs:
           echo "cmake --version"
           cmake --version
           echo "bison --version"
-          $(brew --prefix bison) --version
+          $(brew --prefix bison)/bin/bison --version
           echo "flex --version"
-          $(brew --prefix flex) --version
+          $(brew --prefix flex)/bin/flex --version
           echo "ls -l FlexLexer.h"
           ls -l $(brew --prefix flex)/include/FlexLexer.h
 
