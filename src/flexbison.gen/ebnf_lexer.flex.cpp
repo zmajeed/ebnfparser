@@ -1,4 +1,4 @@
-#line 1 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 2 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 // top of generated .cpp file
 
 #include <stdint.h>
@@ -14,7 +14,7 @@
 #pragma warning(disable: 4244)
 #endif
 
-#line 17 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 18 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -2932,8 +2932,8 @@ using namespace ebnfparser;
 // needed for custom yyterminate
 using symbol_type = EbnfParser::symbol_type;
 
-#line 2935 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 #line 2936 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 2937 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 #define INITIAL 0
 #define RULES 1
@@ -3137,7 +3137,7 @@ YY_DECL
  /* first flex rule starts at beginning of line */
 
  /* ebnf rule begins if nonterminal is first non-whitespace on line */
-#line 3140 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 3141 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -3402,7 +3402,7 @@ YY_RULE_SETUP
 #line 247 "./src/grammar/ebnf_lexer.flex.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 3405 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 3406 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(RULES):
 case YY_STATE_EOF(RULE_START):
