@@ -102,7 +102,9 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew update
-          brew install cmake ninja bison flex
+          brew install gcc cmake ninja bison flex
+          echo "CC=gcc-16" >> $GITHUB_ENV
+          echo "CXX=g++-16" >> $GITHUB_ENV
           echo "BISON_ROOT=$(brew --prefix bison)" >> $GITHUB_ENV
           echo "FLEX_ROOT=$(brew --prefix flex)" >> $GITHUB_ENV
 
@@ -114,8 +116,8 @@ jobs:
           uname -a
           echo "sw_vers"
           sw_vers
-          echo "clang++ --version"
-          clang++ --version
+          echo "g++ --version"
+          g++ --version
           echo "cmake --version"
           cmake --version
           echo "bison --version"
