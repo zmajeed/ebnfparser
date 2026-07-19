@@ -39,7 +39,7 @@ message("flexbisonlib: flex include dirs \"${FLEX_INCLUDE_DIRS}\"")
 target_include_directories(flexbisonlib.ebnfparser PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(flexbisonlib.ebnfparser PUBLIC
   $<$<CXX_COMPILER_ID:MSVC>: ${CMAKE_SOURCE_DIR}/thirdparty/flex>
-  $<$<PLATFORM_ID:APPLE>: ${FLEX_INCLUDE_DIRS}>
+  $<$<PLATFORM_ID:Darwin>: ${FLEX_INCLUDE_DIRS}>
 )
 
 add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/ebnf_grammar_report.txt ${CMAKE_CURRENT_SOURCE_DIR})
