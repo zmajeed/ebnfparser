@@ -117,7 +117,7 @@ jobs:
           echo "sw_vers"
           sw_vers
           echo "g++ --version"
-          g++ --version
+          g++-16 --version
           echo "cmake --version"
           cmake --version
           echo "bison --version"
