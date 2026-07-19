@@ -56,21 +56,29 @@ add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/ebnf_lexer.flex.cpp ${GEN_SRC_DIR}
 )
 
+# damn annoying mac
+if(NOT APPLE)
+  set(OPT_I -i)
+else()
+  set(OPT_I -i "")
+endif()
+
 add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
   COMMENT "Strip absolute local paths from generated bison, flex files"
-  COMMAND sed -Ei 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_parser.bison.h
-  COMMAND sed -Ei 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_parser.bison.h
-  COMMAND sed -Ei 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_parser.bison.cpp
-  COMMAND sed -Ei 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_parser.bison.cpp
-  COMMAND sed -Ei 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/locations.bison.h
-  COMMAND sed -Ei 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/locations.bison.h
-  COMMAND sed -Ei 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_lexer.flex.cpp
-  COMMAND sed -Ei 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_lexer.flex.cpp
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_parser.bison.h
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_parser.bison.h
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_parser.bison.cpp
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_parser.bison.cpp
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/locations.bison.h
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/locations.bison.h
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_CURRENT_BINARY_DIR}!${GEN_SRC_DIR}!' ${GEN_SRC_DIR}/ebnf_lexer.flex.cpp
+  COMMAND sed -E ${OPT_I} 's!${CMAKE_SOURCE_DIR}!.!' ${GEN_SRC_DIR}/ebnf_lexer.flex.cpp
 )
 
 add_custom_command(TARGET flexbisonlib.ebnfparser POST_BUILD
-  COMMAND sed -Ei [[s/(YY_YY).*(_EBNF_PARSER_BISON_H)/\1\2/]] ${GEN_SRC_DIR}/ebnf_parser.bison.h
-  COMMAND sed -Ei [[s/(YY_YY).*(_LOCATIONS_BISON_H)/\1\2/]] ${GEN_SRC_DIR}/locations.bison.h
+  COMMENT "Verbatim strip absolute local paths from generated bison, flex files"
+  COMMAND sed -E ${OPT_I} [[s/(YY_YY).*(_EBNF_PARSER_BISON_H)/\1\2/]] ${GEN_SRC_DIR}/ebnf_parser.bison.h
+  COMMAND sed -E ${OPT_I} [[s/(YY_YY).*(_LOCATIONS_BISON_H)/\1\2/]] ${GEN_SRC_DIR}/locations.bison.h
   VERBATIM
 )
 
