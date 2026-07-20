@@ -64,7 +64,7 @@
     },
     {
       "name": "mac-release",
-      "$comment": "Mac Clang release build",
+      "$comment": "Mac GCC release build",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/mac-release",
       "cacheVariables": {
@@ -75,7 +75,7 @@
     },
     {
       "name": "mac-debug",
-      "$comment": "Mac Clang debug build",
+      "$comment": "Mac GCC debug build",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/mac-debug",
       "cacheVariables": {
