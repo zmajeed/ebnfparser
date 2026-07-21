@@ -119,8 +119,6 @@ struct Item: variant<Symbol, Optional, Group> {
   strong_ordering operator<=>(const Item& other) const;
   bool operator==(const Item& other) const = default;
 
-private:
-  template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 };
 
 // Repetition
@@ -151,7 +149,13 @@ struct AstNode: variant<Grammar, Header, Rule, Alternative, Concatenation, Repet
   void printAst() const;
 
 private:
+
+#if WIN32
+  template<class... Ts> struct __declspec(empty_bases) overload: Ts... { using Ts::operator()...; };
+#else
   template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
+#endif
+  template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
 };
 

@@ -85,7 +85,13 @@ struct BnfNode: variant<BnfGrammar, BnfHeader, BnfRule, BnfChoice, BnfSequence, 
   void printBnf() const;
 
 private:
+
+#if WIN32
+  template<class... Ts> struct __declspec(empty_bases) overload: Ts... { using Ts::operator()...; };
+#else
   template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
+#endif
+  template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
 };
 
@@ -102,33 +108,16 @@ struct EbnfConvert {
   BnfNode convert(const AstNode& ebnf);
 
 private:
-// vc++ seh exceptions crash without empty_bases attribute
+
+// vc++ empty_bases attribute fixes crash from seh exception and memory access violation in overload lambdas that capture anything even if not used
 #if WIN32
-  template<class... Ts> struct __declspec(empty_bases) overload1: Ts... { using Ts::operator()...; };
-
-  template<class... Ts>
-  struct __declspec(empty_bases) overload2 : Ts... {
-    using Ts::operator()...;
-
-    int groupNum = 0;
-    int listNum = 0;
-    vector<BnfRule> newRules;
-  };
+  template<class... Ts> struct __declspec(empty_bases) overload: Ts... { using Ts::operator()...; };
 #else
-  template<class... Ts> struct overload1: Ts... { using Ts::operator()...; };
-
-  template<class... Ts> struct overload2 : Ts... {
-    using Ts::operator()...;
-
-    int groupNum = 0;
-    int listNum = 0;
-    vector<BnfRule> newRules{};
-  };
+  template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
 #endif
 
-// clang 22 and vc++ 2026 still need template deduction guides
-  template<class... Ts> overload1(Ts...) -> overload1<Ts...>;
-  template<class... Ts> overload2(Ts...) -> overload2<Ts...>;
+// clang 22 and vc++ 2026 still need template deduction guide
+  template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
 };
 
@@ -211,7 +200,7 @@ BnfNode EbnfConvert::convert(const AstNode& ebnf) {
   Aux aux;
 
 // visit ebnf nodes inside alternative
-  auto altOverload = overload2{
+  auto altOverload = overload{
 
 // group
     [](this auto&& self, const Group& g) -> BnfChoice {
@@ -341,7 +330,7 @@ BnfNode EbnfConvert::convert(const AstNode& ebnf) {
 
   };
 
-  auto ebnfOverload = overload1{
+  auto ebnfOverload = overload{
 // grammar
     [](this auto&& self, const Grammar& g) -> BnfNode {
       BnfHeader header = get<BnfHeader>(self(g.header));
