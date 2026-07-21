@@ -36,7 +36,7 @@ jobs:
             is_cygwin: false
             exhaustive: false
           - os: ubuntu-26.04
-            preset: wasm-release
+            preset: linux-wasm-release
             is_cygwin: false
             exhaustive: false
           - os: windows-latest
@@ -168,13 +168,12 @@ jobs:
 # Non-Cygwin build and test
 
       - name: CMake Configure
-        if: matrix.is_cygwin == false
-        run: |
-          if [[ ${{ matrix.preset }} == linux-wasm-* ]]; then
-            emcmake cmake --preset ${{ matrix.preset }}
-          else
-            cmake --preset ${{ matrix.preset }}
-          fi
+        if: matrix.is_cygwin == false && matrix.preset != linux-wasm-release
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Webassembly CMake Configure
+        if: matrix.is_cygwin == false && matrix.preset == linux-wasm-release
+        run: emcmake cmake --preset ${{ matrix.preset }}
 
       - name: Build
         if: matrix.is_cygwin == false

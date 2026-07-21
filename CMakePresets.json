@@ -109,20 +109,20 @@
       }
     },
     {
-      "name": "wasm-debug",
+      "name": "linux-wasm-debug",
       "$comment": "Webassembly debug build",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/wasm-debug",
+      "binaryDir": "${sourceDir}/build/linux-wasm-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_EXTENSIONS": "OFF"
       }
     },
     {
-      "name": "wasm-release",
+      "name": "linux-wasm-release",
       "$comment": "Webassembly release build",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/wasm-release",
+      "binaryDir": "${sourceDir}/build/linux-wasm-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_EXTENSIONS": "OFF"
@@ -171,12 +171,12 @@
       "configurePreset": "mac-debug"
     },
     {
-      "name": "wasm-debug",
-      "configurePreset": "wasm-debug"
+      "name": "linux-wasm-debug",
+      "configurePreset": "linux-wasm-debug"
     },
     {
-      "name": "wasm-release",
-      "configurePreset": "wasm-release"
+      "name": "linux-wasm-release",
+      "configurePreset": "linux-wasm-release"
     }
   ],
   "testPresets": [
@@ -223,12 +223,12 @@
       "configurePreset": "mac-debug"
     },
     {
-      "name": "wasm-debug",
-      "configurePreset": "wasm-debug"
+      "name": "linux-wasm-debug",
+      "configurePreset": "linux-wasm-debug"
     },
     {
-      "name": "wasm-release",
-      "configurePreset": "wasm-release"
+      "name": "linux-wasm-release",
+      "configurePreset": "linux-wasm-release"
     }
   ]
 }
