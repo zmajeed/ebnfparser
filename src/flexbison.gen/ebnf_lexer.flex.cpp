@@ -3394,7 +3394,7 @@ YY_RULE_SETUP
 #line 242 "./src/grammar/ebnf_lexer.flex.l"
 {
   loc.columns(yyleng);
-  throw EbnfParser::syntax_error(loc, "bad input \""s + yytext + "\""s);
+  return EbnfParser::make_YYUNDEF(loc);
 }
 	YY_BREAK
 case 20:

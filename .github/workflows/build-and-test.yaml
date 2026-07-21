@@ -180,7 +180,7 @@ jobs:
         run: cmake --build --preset ${{ matrix.preset }}
 
       - name: Run Tests
-        if: matrix.is_cygwin == false && matrix.preset != 'linux-wasm-release'
+        if: matrix.is_cygwin == false
         run: ctest --preset ${{ matrix.preset }} --output-on-failure
 
 # Cygwin setup

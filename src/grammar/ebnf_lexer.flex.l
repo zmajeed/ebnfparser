@@ -240,7 +240,7 @@ using symbol_type = EbnfParser::symbol_type;
  /* all input must be consumed in every state to prevent flex scanner jammed error */
 <*>.|\n {
   loc.columns(yyleng);
-  throw EbnfParser::syntax_error(loc, "bad input \""s + yytext + "\""s);
+  return EbnfParser::make_YYUNDEF(loc);
 }
 
 %%
