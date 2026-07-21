@@ -91,21 +91,44 @@ private:
 
 struct EbnfConvert {
 
-// these started out as local variables in convert but got segv in vc++ with nested visit overload lambdas
-// it seems local captures in nested overload that is itself captured by outer overload end up pointing to invalid memory when inner overload actually runs
-// will need time-consuming debugging and investigation to check if it's a vc++ bug or undefined behavior that happens to work in gcc
-// difference might go away when vc++ implements c++26 variant visit member function
-
-  uint64_t numRulesParsed = 0;
-  uint64_t numRulesGenerated = 0;
-  int groupNum = 0;
-  int listNum = 0;
-  vector<BnfRule> newRules{};
+  struct Aux {
+    uint64_t numRulesParsed = 0;
+    uint64_t numRulesGenerated = 0;
+    int groupNum = 0;
+    int listNum = 0;
+    vector<BnfRule> newRules;
+  };
 
   BnfNode convert(const AstNode& ebnf);
 
 private:
-  template<class... Ts> struct overload: Ts... { using Ts::operator()...; };
+// vc++ seh exceptions crash without empty_bases attribute
+#if WIN32
+  template<class... Ts> struct __declspec(empty_bases) overload1: Ts... { using Ts::operator()...; };
+
+  template<class... Ts>
+  struct __declspec(empty_bases) overload2 : Ts... {
+    using Ts::operator()...;
+
+    int groupNum = 0;
+    int listNum = 0;
+    vector<BnfRule> newRules;
+  };
+#else
+  template<class... Ts> struct overload1: Ts... { using Ts::operator()...; };
+
+  template<class... Ts> struct overload2 : Ts... {
+    using Ts::operator()...;
+
+    int groupNum = 0;
+    int listNum = 0;
+    vector<BnfRule> newRules{};
+  };
+#endif
+
+// clang 22 and vc++ 2026 still need template deduction guides
+  template<class... Ts> overload1(Ts...) -> overload1<Ts...>;
+  template<class... Ts> overload2(Ts...) -> overload2<Ts...>;
 
 };
 
@@ -185,8 +208,10 @@ void BnfNode::printBnf() const {
 inline
 BnfNode EbnfConvert::convert(const AstNode& ebnf) {
 
+  Aux aux;
+
 // visit ebnf nodes inside alternative
-  auto altOverload = overload{
+  auto altOverload = overload2{
 
 // group
     [](this auto&& self, const Group& g) -> BnfChoice {
@@ -251,7 +276,8 @@ BnfNode EbnfConvert::convert(const AstNode& ebnf) {
     },
 
 // repetition
-    [this](this auto&& self, const Repetition& r) -> BnfChoice {
+    [&aux](this auto&& self, const Repetition& r) -> BnfChoice {
+      auto& [_, __, groupNum, listNum, newRules] = aux;
       auto result = self(r.item);
       if(!r.isRepeated) {
         return result;
@@ -315,8 +341,7 @@ BnfNode EbnfConvert::convert(const AstNode& ebnf) {
 
   };
 
-
-  auto ebnfOverload = overload{
+  auto ebnfOverload = overload1{
 // grammar
     [](this auto&& self, const Grammar& g) -> BnfNode {
       BnfHeader header = get<BnfHeader>(self(g.header));
@@ -379,7 +404,7 @@ BnfNode EbnfConvert::convert(const AstNode& ebnf) {
   auto result = visit(ebnfOverload, ebnf);
 #endif
   BnfGrammar bnf = get<BnfGrammar>(result);
-  bnf.rules.append_range(newRules);
+  bnf.rules.append_range(aux.newRules);
 
   return bnf;
 

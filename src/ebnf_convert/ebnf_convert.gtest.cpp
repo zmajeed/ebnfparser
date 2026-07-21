@@ -36,7 +36,6 @@ SOFTWARE.
 #include "ebnf_parser.bison.h"
 
 using namespace std;
-using namespace ::testing;
 using namespace ebnfparser;
 
 namespace ebnfconvert::testing {
