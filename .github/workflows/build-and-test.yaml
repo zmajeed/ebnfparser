@@ -119,7 +119,12 @@ jobs:
             echo "emcc --version"
             type -a emcc
             emcc --version
-            echo "clang --version"
+            echo "emsdk clang --version"
+            echo "$EMSDK/upstream/bin/clang"
+            $EMSDK/upstream/bin/clang --version
+            echo "$EMSDK/upstream/bin/clang++"
+            $EMSDK/upstream/bin/clang++ --version
+            echo "system clang --version"
             type -a clang
             clang --version
             type -a clang++
