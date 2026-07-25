@@ -62,6 +62,10 @@
       "generator": "Visual Studio 18 2026",
       "binaryDir": "${sourceDir}/build/windows-debug",
       "cacheVariables": {
+        "gtest_force_shared_crt": {
+          "type": "BOOL",
+          "value": "ON"
+        }
       }
     },
     {

@@ -59,6 +59,10 @@ SOFTWARE.
 %option nounput noinput batch
 
  // flex start conditions ie states
+ // INITIAL 0 is default start condition
+ // start conditions do not appear here in generated .cpp file
+ // instead they turn into macros defined inside ylex()
+
 %x RULES
 %x RULE_START
 %x BANG_BANG
@@ -66,6 +70,7 @@ SOFTWARE.
 %top{
 // top of generated .cpp file
 
+// fix flex bug vc++ warning C4005, INT8_MIN macro redefinition
 #include <stdint.h>
 #ifdef _WIN32
 #  undef INT8_MIN
@@ -101,6 +106,8 @@ using namespace ebnfparser;
 
 // needed for custom yyterminate
 using symbol_type = EbnfParser::symbol_type;
+
+// flex start conditions appear as macros in .cpp file here
 
 %}
 

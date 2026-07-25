@@ -2,6 +2,8 @@
 
 project(ebnf_lexer)
 
+# tests
+
 add_executable(ebnf_lexer.gtest ebnf_lexer.gtest.cpp)
 
 target_compile_definitions(ebnf_lexer.gtest PRIVATE $<$<PLATFORM_ID:CYGWIN>: GTEST_HAS_PTHREAD=1 _POSIX_C_SOURCE=200809L _GNU_SOURCE>)

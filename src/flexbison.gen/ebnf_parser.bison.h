@@ -63,8 +63,8 @@
 #include "ast/ebnf_ast.h"
 
 #ifdef _MSC_VER
-#pragma warning(push)
 // disable vc++ warning C4065, switch statement contains default but no case labels in code generated for basic_symbol::clear() in .h file
+#pragma warning(push)
 #pragma warning(disable: 4065)
 #endif
 

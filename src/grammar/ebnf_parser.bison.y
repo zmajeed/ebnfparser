@@ -74,8 +74,8 @@ SOFTWARE.
 #include "ast/ebnf_ast.h"
 
 #ifdef _MSC_VER
-#pragma warning(push)
 // disable vc++ warning C4065, switch statement contains default but no case labels in code generated for basic_symbol::clear() in .h file
+#pragma warning(push)
 #pragma warning(disable: 4065)
 #endif
 
@@ -185,6 +185,16 @@ using namespace std;
 
 #include "ast/ebnf_ast.h"
 
+#ifdef _MSC_VER
+// disable vc++ warning C4065, switch statement contains default but no other case labels when there are no semantic actions
+#pragma warning(push)
+#pragma warning(disable: 4065)
+
+// disable vc++ warning C4244, return conversion from const short to findqparser::FindqParser::state_type, possible loss of data 
+#pragma warning(push)
+#pragma warning(disable: 4244)
+#endif
+
 using namespace std;
 using views::as_rvalue;
 
@@ -232,21 +242,21 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 %token <string> LITERAL
 %token <string> HEADER_LINE
 
-%nterm <Grammar> grammar
-%nterm <Header> header
-%nterm <Rule> rule
-%nterm <Alternative> alternative
-%nterm <Optional> optional
-%nterm <Group> group
-%nterm <Concatenation> concatenation
-%nterm <Repetition> repetition
-%nterm <Item> item
+%nterm <Grammar>                 grammar
+%nterm <Header>                  header
+%nterm <Rule>                    rule
+%nterm <Alternative>             alternative
+%nterm <Optional>                optional
+%nterm <Group>                   group
+%nterm <Concatenation>           concatenation
+%nterm <Repetition>              repetition
+%nterm <Item>                    item
 
-%nterm <string> symbol
+%nterm <string>                  symbol
 
-%nterm <vector<string>> header_lines
-%nterm <vector<Rule>> rules
-%nterm <vector<Alternative>> rhs
+%nterm <vector<string>>          header_lines
+%nterm <vector<Rule>>            rules
+%nterm <vector<Alternative>>     rhs
 
 %start grammar
 
@@ -369,4 +379,13 @@ postprocess: %empty {
 }
 
 %%
+
+// %code epilog block
+// goes at bottom of generated .cpp file after namespace and parser implementation
+
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#pragma warning(pop)
+#endif
 
