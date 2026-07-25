@@ -1,6 +1,7 @@
 #line 2 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 // top of generated .cpp file
 
+// fix flex bug vc++ warning C4005, INT8_MIN macro redefinition
 #include <stdint.h>
 #ifdef _WIN32
 #  undef INT8_MIN
@@ -14,7 +15,7 @@
 #pragma warning(disable: 4244)
 #endif
 
-#line 18 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 19 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -2858,8 +2859,8 @@ static const yy_state_type yy_NUL_trans[75] =
 
 static const flex_int16_t yy_rule_linenum[20] =
     {   0,
-      124,  131,  137,  148,  155,  162,  168,  174,  180,  186,
-      192,  198,  204,  210,  215,  222,  227,  234,  242
+      131,  138,  144,  155,  162,  169,  175,  181,  187,  193,
+      199,  205,  211,  217,  222,  229,  234,  241,  249
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -2908,6 +2909,9 @@ SOFTWARE.
  // disable various options for interactive lexer
 #define YY_NO_INPUT 1
  // flex start conditions ie states
+ // INITIAL 0 is default start condition
+ // start conditions do not appear here in generated .cpp file
+ // instead they turn into macros defined inside ylex()
 
 
 
@@ -2932,8 +2936,10 @@ using namespace ebnfparser;
 // needed for custom yyterminate
 using symbol_type = EbnfParser::symbol_type;
 
-#line 2936 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
-#line 2937 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+// flex start conditions appear as macros in .cpp file here
+
+#line 2942 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 2943 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 #define INITIAL 0
 #define RULES 1
@@ -3119,10 +3125,10 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 107 "./src/grammar/ebnf_lexer.flex.l"
+#line 114 "./src/grammar/ebnf_lexer.flex.l"
 
 
-#line 110 "./src/grammar/ebnf_lexer.flex.l"
+#line 117 "./src/grammar/ebnf_lexer.flex.l"
  // code appears inside generated yylex function at start
 
   string headerLine;
@@ -3137,7 +3143,7 @@ YY_DECL
  /* first flex rule starts at beginning of line */
 
  /* ebnf rule begins if nonterminal is first non-whitespace on line */
-#line 3141 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 3147 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -3217,7 +3223,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 124 "./src/grammar/ebnf_lexer.flex.l"
+#line 131 "./src/grammar/ebnf_lexer.flex.l"
 {
   BEGIN(RULES);
   loc.columns(yyleng);
@@ -3227,7 +3233,7 @@ YY_RULE_SETUP
 /* everything above first rule is header */
 case 2:
 YY_RULE_SETUP
-#line 131 "./src/grammar/ebnf_lexer.flex.l"
+#line 138 "./src/grammar/ebnf_lexer.flex.l"
 {
   loc.columns(yyleng);
   headerLine += yytext;
@@ -3237,7 +3243,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 137 "./src/grammar/ebnf_lexer.flex.l"
+#line 144 "./src/grammar/ebnf_lexer.flex.l"
 {
   loc.lines();
   headerLine += yytext;
@@ -3251,7 +3257,7 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 148 "./src/grammar/ebnf_lexer.flex.l"
+#line 155 "./src/grammar/ebnf_lexer.flex.l"
 {
     BEGIN(RULE_START);
     yyless(0);
@@ -3261,7 +3267,7 @@ YY_RULE_SETUP
 /* rematch start of rule that was matched earlier */
 case 5:
 YY_RULE_SETUP
-#line 155 "./src/grammar/ebnf_lexer.flex.l"
+#line 162 "./src/grammar/ebnf_lexer.flex.l"
 {
     BEGIN(RULES);
     loc.columns(yyleng);
@@ -3271,7 +3277,7 @@ YY_RULE_SETUP
 /* match rule assignment operator */
 case 6:
 YY_RULE_SETUP
-#line 162 "./src/grammar/ebnf_lexer.flex.l"
+#line 169 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_COLON_EQUAL(loc);
@@ -3280,7 +3286,7 @@ YY_RULE_SETUP
 /* assumes multiline string literals are not allowed */
 case 7:
 YY_RULE_SETUP
-#line 168 "./src/grammar/ebnf_lexer.flex.l"
+#line 175 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_LITERAL(yytext, loc);
@@ -3289,7 +3295,7 @@ YY_RULE_SETUP
 /* assumes typical identifier syntax for grammar token */
 case 8:
 YY_RULE_SETUP
-#line 174 "./src/grammar/ebnf_lexer.flex.l"
+#line 181 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_TOKEN(yytext, loc);
@@ -3298,7 +3304,7 @@ YY_RULE_SETUP
 /* alternative operator */
 case 9:
 YY_RULE_SETUP
-#line 180 "./src/grammar/ebnf_lexer.flex.l"
+#line 187 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_BAR(loc);
@@ -3307,7 +3313,7 @@ YY_RULE_SETUP
 /* start of optional operator */
 case 10:
 YY_RULE_SETUP
-#line 186 "./src/grammar/ebnf_lexer.flex.l"
+#line 193 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_LEFT_BRACKET(loc);
@@ -3316,7 +3322,7 @@ YY_RULE_SETUP
 /* end of optional operator */
 case 11:
 YY_RULE_SETUP
-#line 192 "./src/grammar/ebnf_lexer.flex.l"
+#line 199 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_RIGHT_BRACKET(loc);
@@ -3325,7 +3331,7 @@ YY_RULE_SETUP
 /* start of group operator */
 case 12:
 YY_RULE_SETUP
-#line 198 "./src/grammar/ebnf_lexer.flex.l"
+#line 205 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_LEFT_BRACE(loc);
@@ -3334,7 +3340,7 @@ YY_RULE_SETUP
 /* end of group operator */
 case 13:
 YY_RULE_SETUP
-#line 204 "./src/grammar/ebnf_lexer.flex.l"
+#line 211 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_RIGHT_BRACE(loc);
@@ -3343,7 +3349,7 @@ YY_RULE_SETUP
 /* repetition operator */
 case 14:
 YY_RULE_SETUP
-#line 210 "./src/grammar/ebnf_lexer.flex.l"
+#line 217 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
     return EbnfParser::make_ELLIPSIS(loc);
@@ -3351,7 +3357,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 215 "./src/grammar/ebnf_lexer.flex.l"
+#line 222 "./src/grammar/ebnf_lexer.flex.l"
 {
     BEGIN(BANG_BANG);
     loc.columns(yyleng);
@@ -3362,7 +3368,7 @@ YY_RULE_SETUP
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 222 "./src/grammar/ebnf_lexer.flex.l"
+#line 229 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.lines(yyleng);
   }
@@ -3370,7 +3376,7 @@ YY_RULE_SETUP
 /* whitespace except newline, same as [ \t\v\f\r] but easier to understand */
 case 17:
 YY_RULE_SETUP
-#line 227 "./src/grammar/ebnf_lexer.flex.l"
+#line 234 "./src/grammar/ebnf_lexer.flex.l"
 {
     loc.columns(yyleng);
   }
@@ -3379,7 +3385,7 @@ YY_RULE_SETUP
 
 case 18:
 YY_RULE_SETUP
-#line 234 "./src/grammar/ebnf_lexer.flex.l"
+#line 241 "./src/grammar/ebnf_lexer.flex.l"
 {
     BEGIN(RULES);
     loc.columns(yyleng);
@@ -3391,7 +3397,7 @@ YY_RULE_SETUP
 case 19:
 /* rule 19 can match eol */
 YY_RULE_SETUP
-#line 242 "./src/grammar/ebnf_lexer.flex.l"
+#line 249 "./src/grammar/ebnf_lexer.flex.l"
 {
   loc.columns(yyleng);
   return EbnfParser::make_YYUNDEF(loc);
@@ -3399,10 +3405,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 247 "./src/grammar/ebnf_lexer.flex.l"
+#line 254 "./src/grammar/ebnf_lexer.flex.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 3406 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 3412 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(RULES):
 case YY_STATE_EOF(RULE_START):
@@ -4528,7 +4534,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 247 "./src/grammar/ebnf_lexer.flex.l"
+#line 254 "./src/grammar/ebnf_lexer.flex.l"
 
 
 #ifdef _MSC_VER

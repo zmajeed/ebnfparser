@@ -41,7 +41,7 @@ namespace ebnfparser::testing {
 TEST(Lexer, test_0000) {
 
   stringstream s("<true literal>");
-  Lexer lexer(&s);
+  Lexer lexer(s);
   LexParam lexParam{};
 
   auto token = lexer.yylex(lexParam);
@@ -52,7 +52,7 @@ TEST(Lexer, test_0000) {
 TEST(Lexer, test_0001) {
 
   stringstream s("    <true literal>");
-  Lexer lexer(&s);
+  Lexer lexer(s);
   LexParam lexParam{};
 
   auto token = lexer.yylex(lexParam);
