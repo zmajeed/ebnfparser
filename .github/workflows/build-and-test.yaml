@@ -81,11 +81,15 @@ jobs:
             sudo apt install -y clang-22 lld-22
             echo "CC=clang-22" >> $GITHUB_ENV
             echo "CXX=clang++-22" >> $GITHUB_ENV
-          elif [[ ${{ matrix.preset }} == linux-wasm-* ]]; then
-            sudo apt install -y clang-22 lld-22
-            echo "CC=clang-22" >> $GITHUB_ENV
-            echo "CXX=clang++-22" >> $GITHUB_ENV
           fi
+
+# Webassembly setup
+
+      - name: Webassembly setup
+        if: matrix.preset == 'linux-wasm-release'
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: 'latest'
 
       - name: Linux versions
         if: matrix.os == 'ubuntu-26.04'
@@ -111,15 +115,21 @@ jobs:
             echo "clang --version"
             clang-22 --version
             clang++-22 --version
+          elif [[ ${{ matrix.preset }} == linux-wasm-* ]]; then
+            echo "emcc --version"
+            type -a emcc
+            emcc --version
+            echo "emsdk clang --version"
+            echo "$EMSDK/upstream/bin/clang"
+            $EMSDK/upstream/bin/clang --version
+            echo "$EMSDK/upstream/bin/clang++"
+            $EMSDK/upstream/bin/clang++ --version
+            echo "system clang --version"
+            type -a clang
+            clang --version
+            type -a clang++
+            clang++ --version
           fi
-
-# Webassembly setup
-
-      - name: Webassembly setup
-        if: matrix.preset == 'linux-wasm-release'
-        uses: emscripten-core/setup-emsdk@v16
-        with:
-          version: 'latest'
 
 # Windows setup
 
@@ -151,19 +161,20 @@ jobs:
           echo "sw_vers"
           sw_vers
           echo "gcc --version"
+          type -a gcc-16
           gcc-16 --version
+          type -a g++-16
           g++-16 --version
           echo "cmake --version"
           cmake --version
           echo "bison --version"
+          brew --prefix bison
           $(brew --prefix bison)/bin/bison --version
           echo "flex --version"
+          brew --prefix flex
           $(brew --prefix flex)/bin/flex --version
           echo "ls -l FlexLexer.h"
           ls -l $(brew --prefix flex)/include/FlexLexer.h
-          echo "gcc --version"
-          gcc-16 --version
-          g++-16 --version
 
 # Non-Cygwin build and test
 
@@ -181,6 +192,8 @@ jobs:
 
       - name: Run Tests
         if: matrix.is_cygwin == false
+        env:
+          GTEST_HAS_DEATH_TEST: "0"
         run: ctest --preset ${{ matrix.preset }} --output-on-failure
 
 # Cygwin setup
@@ -239,5 +252,7 @@ jobs:
           matrix.is_cygwin == true &&
           (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_exhaustive == true))
         shell: bash
+        env:
+          GTEST_HAS_DEATH_TEST: "0"
         run: |
           ctest --preset ${{ matrix.preset }} --output-on-failure
