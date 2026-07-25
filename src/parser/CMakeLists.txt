@@ -4,7 +4,9 @@ project(ebnfparser_bison)
 
 add_executable(ebnfparser ebnf_parser.cpp)
 
-target_compile_definitions(ebnfparser PRIVATE $<$<PLATFORM_ID:CYGWIN>: GTEST_HAS_PTHREAD=1 _POSIX_C_SOURCE=200809L _GNU_SOURCE>)
+target_compile_definitions(ebnfparser PRIVATE
+  $<$<PLATFORM_ID:CYGWIN>: GTEST_HAS_PTHREAD=1 _POSIX_C_SOURCE=200809L _GNU_SOURCE>
+)
 
 target_compile_options(ebnfparser PRIVATE
   $<$<CXX_COMPILER_ID:GNU>: -Wall -Werror -Wextra -std=c++26 -pthread -fconcepts-diagnostics-depth=10>

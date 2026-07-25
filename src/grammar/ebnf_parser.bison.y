@@ -61,10 +61,32 @@ SOFTWARE.
 // %code requires codeblock goes at top of .h outside of namespace and parser class
 // standard c++ #includes and defines
 
+/*
+MIT License
+
+Copyright (c) 2024-2026 Zartaj Majeed
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
 #include <functional>
 #include <chrono>
 #include <print>
@@ -147,7 +169,8 @@ struct std::formatter<ebnfparser::location> {
 %define parse.assert
 
 %code provides {
-// %code provides codeblock goes in .h after namespace and parser class
+// %code provides codeblock
+// goes in .h after namespace and parser class
 // everything here needs EbnfParser defined earlier
 
 #ifdef _MSC_VER
@@ -163,15 +186,46 @@ using namespace std;
 
 }
 
-%{
-// %{ unnamed codeblock goes at very top of .cpp file before namespace and parser class
+%code top {
+// % code top
+// appears as topmost code block in generated .cpp file just below gnu license
+// your license for .cpp file
 
-#include <sstream>
+/*
+MIT License
+
+Copyright (c) 2024-2026 Zartaj Majeed
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+}
+
+%{
+// %{ unnamed codeblock
+// goes at top of .cpp file after %code top, before namespace and parser class
 
 %}
 
 %code {
-// %code codeblock goes at top of .cpp outside namespace and parser class
+// %code
+// appears in generated .cpp file after #include of generated .h file and before parser namespace and class
 
 #include <string>
 #include <vector>
@@ -182,6 +236,7 @@ using namespace std;
 #include <chrono>
 #include <print>
 #include <ranges>
+#include <sstream>
 
 #include "ast/ebnf_ast.h"
 
@@ -209,7 +264,8 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 }
 
 %initial-action {
-// %initial-action codeblock goes inside parse() function in .cpp, it's a separate brace-scoped block, anything declared here is local to this block and cannot be used anywhere else in parse()
+// %initial-action codeblock
+// goes inside parse() function in .cpp, it's a separate brace-scoped block, anything declared here is local to this block and cannot be used anywhere else in parse()
 
 // suppress unused variable warning till fix in release after version 3.8.2, https://github.com/akimd/bison/commit/a166d5450e3f47587b98f6005f9f5627dbe21a5b
 // yynerrs_ is local to generated parse function
@@ -379,6 +435,8 @@ postprocess: %empty {
 }
 
 %%
+// %code epilog block
+// goes at bottom of generated .cpp file after namespace and parser implementation
 
 // %code epilog block
 // goes at bottom of generated .cpp file after namespace and parser implementation
