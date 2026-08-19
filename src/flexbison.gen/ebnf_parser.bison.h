@@ -50,10 +50,32 @@
 // %code requires codeblock goes at top of .h outside of namespace and parser class
 // standard c++ #includes and defines
 
+/*
+MIT License
+
+Copyright (c) 2024-2026 Zartaj Majeed
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
 #include <functional>
 #include <chrono>
 #include <print>
@@ -105,7 +127,7 @@ struct std::formatter<ebnfparser::location> {
 };
 
 
-#line 109 "./src/flexbison.gen/ebnf_parser.bison.h"
+#line 131 "./src/flexbison.gen/ebnf_parser.bison.h"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -244,9 +266,9 @@ struct std::formatter<ebnfparser::location> {
 # define YYDEBUG 1
 #endif
 
-#line 121 "./src/grammar/ebnf_parser.bison.y"
+#line 143 "./src/grammar/ebnf_parser.bison.y"
 namespace ebnfparser {
-#line 250 "./src/flexbison.gen/ebnf_parser.bison.h"
+#line 272 "./src/flexbison.gen/ebnf_parser.bison.h"
 
 
 
@@ -1979,15 +2001,16 @@ switch (yykind)
   }
 
 
-#line 121 "./src/grammar/ebnf_parser.bison.y"
+#line 143 "./src/grammar/ebnf_parser.bison.y"
 } // ebnfparser
-#line 1985 "./src/flexbison.gen/ebnf_parser.bison.h"
+#line 2007 "./src/flexbison.gen/ebnf_parser.bison.h"
 
 
 // "%code provides" blocks.
-#line 149 "./src/grammar/ebnf_parser.bison.y"
+#line 171 "./src/grammar/ebnf_parser.bison.y"
 
-// %code provides codeblock goes in .h after namespace and parser class
+// %code provides codeblock
+// goes in .h after namespace and parser class
 // everything here needs EbnfParser defined earlier
 
 #ifdef _MSC_VER
@@ -2002,7 +2025,7 @@ using namespace std;
 }
 
 
-#line 2006 "./src/flexbison.gen/ebnf_parser.bison.h"
+#line 2029 "./src/flexbison.gen/ebnf_parser.bison.h"
 
 
 #endif // !YY_YY_EBNF_PARSER_BISON_H_INCLUDED

@@ -53,7 +53,7 @@
 #  endif
 # endif
 
-#line 121 "./src/grammar/ebnf_parser.bison.y"
+#line 143 "./src/grammar/ebnf_parser.bison.y"
 namespace ebnfparser {
 #line 59 "./src/flexbison.gen/locations.bison.h"
 
@@ -299,7 +299,7 @@ namespace ebnfparser {
     return ostr;
   }
 
-#line 121 "./src/grammar/ebnf_parser.bison.y"
+#line 143 "./src/grammar/ebnf_parser.bison.y"
 } // ebnfparser
 #line 305 "./src/flexbison.gen/locations.bison.h"
 

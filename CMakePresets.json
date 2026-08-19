@@ -62,10 +62,6 @@
       "generator": "Visual Studio 18 2026",
       "binaryDir": "${sourceDir}/build/windows-debug",
       "cacheVariables": {
-        "gtest_force_shared_crt": {
-          "type": "BOOL",
-          "value": "ON"
-        }
       }
     },
     {
@@ -152,11 +148,13 @@
     },
     {
       "name": "windows-release",
-      "configurePreset": "windows-release"
+      "configurePreset": "windows-release",
+      "configuration": "Release"
     },
     {
       "name": "windows-debug",
-      "configurePreset": "windows-debug"
+      "configurePreset": "windows-debug",
+      "configuration": "Debug"
     },
     {
       "name": "cygwin-release",

@@ -34,26 +34,59 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
+// "%code top" blocks.
+#line 189 "./src/grammar/ebnf_parser.bison.y"
+
+// % code top
+// appears as topmost code block in generated .cpp file just below gnu license
+// your license for .cpp file
+
+/*
+MIT License
+
+Copyright (c) 2024-2026 Zartaj Majeed
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+#line 70 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
 
 // First part of user prologue.
-#line 166 "./src/grammar/ebnf_parser.bison.y"
+#line 220 "./src/grammar/ebnf_parser.bison.y"
 
-// %{ unnamed codeblock goes at very top of .cpp file before namespace and parser class
+// %{ unnamed codeblock
+// goes at top of .cpp file after %code top, before namespace and parser class
 
-#include <sstream>
 
-
-#line 48 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 80 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
 
 #include "ebnf_parser.bison.h"
 
 
 // Unqualified %code blocks.
-#line 173 "./src/grammar/ebnf_parser.bison.y"
+#line 226 "./src/grammar/ebnf_parser.bison.y"
 
-// %code codeblock goes at top of .cpp outside namespace and parser class
+// %code
+// appears in generated .cpp file after #include of generated .h file and before parser namespace and class
 
 #include <string>
 #include <vector>
@@ -64,6 +97,7 @@
 #include <chrono>
 #include <print>
 #include <ranges>
+#include <sstream>
 
 #include "ast/ebnf_ast.h"
 
@@ -89,7 +123,7 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 }
 
 
-#line 93 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 127 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
 
 #ifndef YY_
@@ -180,9 +214,9 @@ void ebnfparser::EbnfParser::error(const location& loc, const string& msg) {
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 121 "./src/grammar/ebnf_parser.bison.y"
+#line 143 "./src/grammar/ebnf_parser.bison.y"
 namespace ebnfparser {
-#line 186 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 220 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
   /// Build a parser object.
   EbnfParser::EbnfParser (function<EbnfParser::symbol_type(LexParam&)> yylex_yyarg, BisonParam& bisonParam_yyarg, LexParam& lexParam_yyarg)
@@ -668,9 +702,10 @@ namespace ebnfparser {
 
 
     // User initialization code.
-#line 211 "./src/grammar/ebnf_parser.bison.y"
+#line 266 "./src/grammar/ebnf_parser.bison.y"
 {
-// %initial-action codeblock goes inside parse() function in .cpp, it's a separate brace-scoped block, anything declared here is local to this block and cannot be used anywhere else in parse()
+// %initial-action codeblock
+// goes inside parse() function in .cpp, it's a separate brace-scoped block, anything declared here is local to this block and cannot be used anywhere else in parse()
 
 // suppress unused variable warning till fix in release after version 3.8.2, https://github.com/akimd/bison/commit/a166d5450e3f47587b98f6005f9f5627dbe21a5b
 // yynerrs_ is local to generated parse function
@@ -685,7 +720,7 @@ namespace ebnfparser {
   }
 }
 
-#line 689 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 724 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
 
     /* Initialize the stack.  The initial state will be set in
@@ -877,37 +912,37 @@ namespace ebnfparser {
           switch (yyn)
             {
   case 2: // grammar: header postprocess
-#line 267 "./src/grammar/ebnf_parser.bison.y"
+#line 323 "./src/grammar/ebnf_parser.bison.y"
                             {
   yylhs.value.as < Grammar > ().header = move(yystack_[1].value.as < Header > ());
   bisonParam.ast = move(yylhs.value.as < Grammar > ());
 }
-#line 886 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 921 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 3: // grammar: header rules postprocess
-#line 271 "./src/grammar/ebnf_parser.bison.y"
+#line 327 "./src/grammar/ebnf_parser.bison.y"
                            {
   yylhs.value.as < Grammar > ().header = move(yystack_[2].value.as < Header > ());
   yylhs.value.as < Grammar > ().rules = move(yystack_[1].value.as < vector<Rule> > ());
   bisonParam.ast = move(yylhs.value.as < Grammar > ());
 }
-#line 896 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 931 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 4: // rules: rule
-#line 277 "./src/grammar/ebnf_parser.bison.y"
+#line 333 "./src/grammar/ebnf_parser.bison.y"
             {
   if(yystack_[0].value.as < Rule > ().nonterminal.empty()) {
     break;
   }
   yylhs.value.as < vector<Rule> > ().push_back(move(yystack_[0].value.as < Rule > ()));
 }
-#line 907 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 942 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 5: // rules: rules V_RULE_SEP rule
-#line 283 "./src/grammar/ebnf_parser.bison.y"
+#line 339 "./src/grammar/ebnf_parser.bison.y"
                         {
   if(yystack_[0].value.as < Rule > ().nonterminal.empty()) {
     break;
@@ -915,201 +950,201 @@ namespace ebnfparser {
   yylhs.value.as < vector<Rule> > () = move(yystack_[2].value.as < vector<Rule> > ());
   yylhs.value.as < vector<Rule> > ().push_back(move(yystack_[0].value.as < Rule > ()));
 }
-#line 919 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 954 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 6: // rule: NONTERMINAL "::=" rhs
-#line 291 "./src/grammar/ebnf_parser.bison.y"
+#line 347 "./src/grammar/ebnf_parser.bison.y"
                             {
   yylhs.value.as < Rule > ().nonterminal = move(yystack_[2].value.as < string > ());
   yylhs.value.as < Rule > ().alts.insert_range(as_rvalue(yystack_[0].value.as < vector<Alternative> > ()));
 }
-#line 928 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 963 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 7: // rhs: alternative
-#line 296 "./src/grammar/ebnf_parser.bison.y"
+#line 352 "./src/grammar/ebnf_parser.bison.y"
                  {
   yylhs.value.as < vector<Alternative> > ().push_back(yystack_[0].value.as < Alternative > ());
 }
-#line 936 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 971 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 8: // rhs: see_syntax_rules
-#line 299 "./src/grammar/ebnf_parser.bison.y"
+#line 355 "./src/grammar/ebnf_parser.bison.y"
                    {
 }
-#line 943 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 978 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 9: // rhs: alternative see_syntax_rules
-#line 301 "./src/grammar/ebnf_parser.bison.y"
+#line 357 "./src/grammar/ebnf_parser.bison.y"
                                {
   yylhs.value.as < vector<Alternative> > ().push_back(yystack_[1].value.as < Alternative > ());
 }
-#line 951 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 986 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 10: // alternative: concatenation
-#line 305 "./src/grammar/ebnf_parser.bison.y"
+#line 361 "./src/grammar/ebnf_parser.bison.y"
                            {
   yylhs.value.as < Alternative > ().concats.emplace(yystack_[0].value.as < Concatenation > ());
-}
-#line 959 "./src/flexbison.gen/ebnf_parser.bison.cpp"
-    break;
-
-  case 11: // alternative: alternative "|" concatenation
-#line 308 "./src/grammar/ebnf_parser.bison.y"
-                                {
-  yylhs.value.as < Alternative > () = move(yystack_[2].value.as < Alternative > ());
-  yylhs.value.as < Alternative > ().concats.emplace(yystack_[0].value.as < Concatenation > ());
-}
-#line 968 "./src/flexbison.gen/ebnf_parser.bison.cpp"
-    break;
-
-  case 12: // concatenation: repetition
-#line 313 "./src/grammar/ebnf_parser.bison.y"
-                          {
-  yylhs.value.as < Concatenation > ().reps.push_back(move(yystack_[0].value.as < Repetition > ()));
-}
-#line 976 "./src/flexbison.gen/ebnf_parser.bison.cpp"
-    break;
-
-  case 13: // concatenation: concatenation repetition
-#line 316 "./src/grammar/ebnf_parser.bison.y"
-                           {
-  yylhs.value.as < Concatenation > () = move(yystack_[1].value.as < Concatenation > ());
-  yylhs.value.as < Concatenation > ().reps.push_back(move(yystack_[0].value.as < Repetition > ()));
-}
-#line 985 "./src/flexbison.gen/ebnf_parser.bison.cpp"
-    break;
-
-  case 14: // repetition: item
-#line 321 "./src/grammar/ebnf_parser.bison.y"
-                 {
-  yylhs.value.as < Repetition > ().item = move(yystack_[0].value.as < Item > ());
-  yylhs.value.as < Repetition > ().isRepeated = false;
 }
 #line 994 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
-  case 15: // repetition: item "..."
-#line 325 "./src/grammar/ebnf_parser.bison.y"
-             {
-  yylhs.value.as < Repetition > ().item = move(yystack_[1].value.as < Item > ());
-  yylhs.value.as < Repetition > ().isRepeated = true;
+  case 11: // alternative: alternative "|" concatenation
+#line 364 "./src/grammar/ebnf_parser.bison.y"
+                                {
+  yylhs.value.as < Alternative > () = move(yystack_[2].value.as < Alternative > ());
+  yylhs.value.as < Alternative > ().concats.emplace(yystack_[0].value.as < Concatenation > ());
 }
 #line 1003 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
-  case 16: // item: symbol
-#line 330 "./src/grammar/ebnf_parser.bison.y"
-             {
-  yylhs.value.as < Item > () = move(yystack_[0].value.as < string > ());
+  case 12: // concatenation: repetition
+#line 369 "./src/grammar/ebnf_parser.bison.y"
+                          {
+  yylhs.value.as < Concatenation > ().reps.push_back(move(yystack_[0].value.as < Repetition > ()));
 }
 #line 1011 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
+  case 13: // concatenation: concatenation repetition
+#line 372 "./src/grammar/ebnf_parser.bison.y"
+                           {
+  yylhs.value.as < Concatenation > () = move(yystack_[1].value.as < Concatenation > ());
+  yylhs.value.as < Concatenation > ().reps.push_back(move(yystack_[0].value.as < Repetition > ()));
+}
+#line 1020 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+    break;
+
+  case 14: // repetition: item
+#line 377 "./src/grammar/ebnf_parser.bison.y"
+                 {
+  yylhs.value.as < Repetition > ().item = move(yystack_[0].value.as < Item > ());
+  yylhs.value.as < Repetition > ().isRepeated = false;
+}
+#line 1029 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+    break;
+
+  case 15: // repetition: item "..."
+#line 381 "./src/grammar/ebnf_parser.bison.y"
+             {
+  yylhs.value.as < Repetition > ().item = move(yystack_[1].value.as < Item > ());
+  yylhs.value.as < Repetition > ().isRepeated = true;
+}
+#line 1038 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+    break;
+
+  case 16: // item: symbol
+#line 386 "./src/grammar/ebnf_parser.bison.y"
+             {
+  yylhs.value.as < Item > () = move(yystack_[0].value.as < string > ());
+}
+#line 1046 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+    break;
+
   case 17: // item: optional
-#line 333 "./src/grammar/ebnf_parser.bison.y"
+#line 389 "./src/grammar/ebnf_parser.bison.y"
            {
   yylhs.value.as < Item > () = move(yystack_[0].value.as < Optional > ());
 }
-#line 1019 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1054 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 18: // item: group
-#line 336 "./src/grammar/ebnf_parser.bison.y"
+#line 392 "./src/grammar/ebnf_parser.bison.y"
         {
   yylhs.value.as < Item > () = move(yystack_[0].value.as < Group > ());
 }
-#line 1027 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1062 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 19: // optional: "[" alternative "]"
-#line 340 "./src/grammar/ebnf_parser.bison.y"
+#line 396 "./src/grammar/ebnf_parser.bison.y"
                               {
   yylhs.value.as < Optional > ().concats = move(yystack_[1].value.as < Alternative > ().concats);
 }
-#line 1035 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1070 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 20: // group: "{" alternative "}"
-#line 344 "./src/grammar/ebnf_parser.bison.y"
+#line 400 "./src/grammar/ebnf_parser.bison.y"
                            {
   yylhs.value.as < Group > ().concats = move(yystack_[1].value.as < Alternative > ().concats);
 }
-#line 1043 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1078 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 21: // symbol: NONTERMINAL
-#line 348 "./src/grammar/ebnf_parser.bison.y"
+#line 404 "./src/grammar/ebnf_parser.bison.y"
                     {
   yylhs.value.as < string > () = move(yystack_[0].value.as < string > ());
 }
-#line 1051 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1086 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 22: // symbol: TOKEN
-#line 351 "./src/grammar/ebnf_parser.bison.y"
+#line 407 "./src/grammar/ebnf_parser.bison.y"
         {
   yylhs.value.as < string > () = move(yystack_[0].value.as < string > ());
 }
-#line 1059 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1094 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 23: // symbol: LITERAL
-#line 354 "./src/grammar/ebnf_parser.bison.y"
+#line 410 "./src/grammar/ebnf_parser.bison.y"
           {
   yylhs.value.as < string > () = move(yystack_[0].value.as < string > ());
 }
-#line 1067 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1102 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 24: // header: %empty
-#line 358 "./src/grammar/ebnf_parser.bison.y"
+#line 414 "./src/grammar/ebnf_parser.bison.y"
                {
 }
-#line 1074 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1109 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 25: // header: header_lines
-#line 360 "./src/grammar/ebnf_parser.bison.y"
+#line 416 "./src/grammar/ebnf_parser.bison.y"
                {
   yylhs.value.as < Header > ().lines = move(yystack_[0].value.as < vector<string> > ());
 }
-#line 1082 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1117 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 26: // header_lines: HEADER_LINE
-#line 364 "./src/grammar/ebnf_parser.bison.y"
+#line 420 "./src/grammar/ebnf_parser.bison.y"
                           {
   yylhs.value.as < vector<string> > ().push_back(move(yystack_[0].value.as < string > ()));
 }
-#line 1090 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1125 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 27: // header_lines: header_lines HEADER_LINE
-#line 367 "./src/grammar/ebnf_parser.bison.y"
+#line 423 "./src/grammar/ebnf_parser.bison.y"
                            {
   yylhs.value.as < vector<string> > () = move(yystack_[1].value.as < vector<string> > ());
   yylhs.value.as < vector<string> > ().push_back(move(yystack_[0].value.as < string > ()));
 }
-#line 1099 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1134 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
   case 29: // postprocess: %empty
-#line 375 "./src/grammar/ebnf_parser.bison.y"
+#line 431 "./src/grammar/ebnf_parser.bison.y"
                     {
   auto& [start, end, elapsed] = bisonParam.stats;
   end = steady_clock::now();
   elapsed = end - start;
 }
-#line 1109 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1144 "./src/flexbison.gen/ebnf_parser.bison.cpp"
     break;
 
 
-#line 1113 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1148 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
             default:
               break;
@@ -1516,9 +1551,9 @@ namespace ebnfparser {
   const short
   EbnfParser::yyrline_[] =
   {
-       0,   267,   267,   271,   277,   283,   291,   296,   299,   301,
-     305,   308,   313,   316,   321,   325,   330,   333,   336,   340,
-     344,   348,   351,   354,   358,   360,   364,   367,   372,   375
+       0,   323,   323,   327,   333,   339,   347,   352,   355,   357,
+     361,   364,   369,   372,   377,   381,   386,   389,   392,   396,
+     400,   404,   407,   410,   414,   416,   420,   423,   428,   431
   };
 
   void
@@ -1549,12 +1584,14 @@ namespace ebnfparser {
 #endif // YYDEBUG
 
 
-#line 121 "./src/grammar/ebnf_parser.bison.y"
+#line 143 "./src/grammar/ebnf_parser.bison.y"
 } // ebnfparser
-#line 1555 "./src/flexbison.gen/ebnf_parser.bison.cpp"
+#line 1590 "./src/flexbison.gen/ebnf_parser.bison.cpp"
 
-#line 381 "./src/grammar/ebnf_parser.bison.y"
+#line 437 "./src/grammar/ebnf_parser.bison.y"
 
+// %code epilog block
+// goes at bottom of generated .cpp file after namespace and parser implementation
 
 // %code epilog block
 // goes at bottom of generated .cpp file after namespace and parser implementation

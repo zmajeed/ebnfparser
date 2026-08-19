@@ -25,6 +25,3 @@ set_tests_properties(int_004 PROPERTIES
   LABELS "ebnfparse;integration;commands;cmds"
   DISABLED $<STREQUAL:$<PLATFORM_ID>,Emscripten>
 )
-
-
-enable_testing()
