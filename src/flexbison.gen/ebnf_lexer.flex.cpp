@@ -1,4 +1,4 @@
-#line 2 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 1 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 // top of generated .cpp file
 
 // fix flex bug vc++ warning C4005, INT8_MIN macro redefinition
@@ -15,7 +15,7 @@
 #pragma warning(disable: 4244)
 #endif
 
-#line 19 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 18 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -2938,8 +2938,8 @@ using symbol_type = EbnfParser::symbol_type;
 
 // flex start conditions appear as macros in .cpp file here
 
+#line 2941 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 #line 2942 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
-#line 2943 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 #define INITIAL 0
 #define RULES 1
@@ -3143,7 +3143,7 @@ YY_DECL
  /* first flex rule starts at beginning of line */
 
  /* ebnf rule begins if nonterminal is first non-whitespace on line */
-#line 3147 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 3146 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -3408,7 +3408,7 @@ YY_RULE_SETUP
 #line 254 "./src/grammar/ebnf_lexer.flex.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 3412 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
+#line 3411 "./src/flexbison.gen/ebnf_lexer.flex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(RULES):
 case YY_STATE_EOF(RULE_START):

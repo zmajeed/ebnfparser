@@ -13,11 +13,7 @@ endif()
 
 add_subdirectory(parser)
 add_subdirectory(lexer)
-
 add_subdirectory(ast)
-
 add_subdirectory(parser_api)
-
 add_subdirectory(ebnf_convert)
 
-enable_testing()
