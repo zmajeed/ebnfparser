@@ -39,6 +39,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 extern int __optpos, __optreset;
 
+extern void __getopt_msg(const char *a, const char *b, const char *c, size_t l);
+
 static void permute(char *const *argv, int dest, int src)
 {
 	char **av = (char **)argv;
@@ -88,8 +90,8 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 		 (argv[optind][1] == '-' && argv[optind][2])))
 	{
 		int colon = optstring[optstring[0]=='+'||optstring[0]=='-']==':';
-		int i, cnt, match;
-		char *arg, *opt, *start = argv[optind]+1;
+		int i, cnt, match = 0;
+		char *arg = NULL, *opt, *start = argv[optind]+1;
 		for (cnt=i=0; longopts[i].name; i++) {
 			const char *name = longopts[i].name;
 			opt = start;
@@ -106,7 +108,7 @@ static int __getopt_long_core(int argc, char *const *argv, const char *optstring
 			cnt++;
 		}
 		if (cnt==1 && longonly && arg-start == mblen(start, MB_LEN_MAX)) {
-			int l = arg-start;
+			ptrdiff_t l = arg-start;
 			for (i=0; optstring[i]; i++) {
 				int j;
 				for (j=0; j<l && start[j]==optstring[i+j]; j++);
