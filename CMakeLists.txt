@@ -10,6 +10,7 @@ project(ebnfparser)
 # define macros
 add_compile_definitions(
   "$<$<PLATFORM_ID:CYGWIN>:GTEST_HAS_PTHREAD=1;_POSIX_C_SOURCE=200809L;_GNU_SOURCE>"
+  "$<$<PLATFORM_ID:Emscripten>:GTEST_HAS_DEATH_TEST=0>"
 )
 
 # common options for C++ and C
